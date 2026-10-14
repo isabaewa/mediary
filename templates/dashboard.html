@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <!-- Левая колонка -->
+    <div class="col-md-5">
+        <div class="card">
+            <h2 class="fw-bold" style="font-size: 1.3rem; margin-top: 0; margin-bottom: 5px;">Привет! 👋</h2>
+            <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 20px;">Это твой дневник самочувствия на сегодня.</p>
+            
+            {% if today_entry %}
+                <div class="alert-success" style="margin-bottom: 20px;">
+                    <h5 class="fw-bold" style="margin-top: 0; margin-bottom: 10px; font-size: 0.95rem;">Запись за сегодня заполнена!</h5>
+                    <div style="font-size: 0.9rem; line-height: 1.5;">
+                        <strong>Физическое состояние:</strong> {{ today_entry.condition }}<br>
+                        <strong>Настроение:</strong> {{ today_entry.mood }}<br>
+                        <strong>Симптомы:</strong> {{ today_entry.symptoms }}
+                    </div>
+                </div>
+                <a href="{% url 'diary_detail' today_entry.pk %}" class="btn btn-outline-primary btn-sm btn-w100" style="margin-top: 5px;">Посмотреть запись</a>
+            {% else %}
+                <div style="background-color: #f8fafc; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; border: 1px dashed #e2e8f0;">
+                    <p class="text-muted" style="font-size: 0.9rem; margin: 0;">Ты ещё не отмечала самочувствие сегодня.</p>
+                </div>
+                <a href="{% url 'diary_create' %}" class="btn btn-primary btn-w100">Заполни дневник</a>
+            {% endif %}
+        </div>
+        
+        <div class="card" style="padding: 20px;">
+            <h5 class="fw-bold" style="font-size: 0.85rem; color: #64748b; margin-top: 0; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Быстрые действия</h5>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="{% url 'medication_create' %}" class="btn btn-light btn-sm" style="justify-content: flex-start; background: #fff; border: 1px solid #e2e8f0;">Добавить новый препарат</a>
+                <a href="{% url 'diary_create' %}" class="btn btn-light btn-sm" style="justify-content: flex-start; background: #fff; border: 1px solid #e2e8f0;">Запись за прошедшие дни</a>
+                <a href="{% url 'history' %}" class="btn btn-light btn-sm" style="justify-content: flex-start; background: #fff; border: 1px solid #e2e8f0;">Посмотреть архив истории</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Правая колонка: Чек-лист -->
+    <div class="col-md-7">
+        <div class="card">
+            <h3 class="fw-bold" style="font-size: 1.15rem; margin-top: 0; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
+                Приём лекарств на сегодня <span class="text-muted" style="font-size: 0.9rem; font-weight: normal;">({{ today|date:"d E" }})</span>
+            </h3>
+            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 20px; margin-top: 0;">Нажмите на пилюлю справа, чтобы отметить выполненный приём</p>
+            
+            {% if today_intakes %}
+                <div class="day-progress{% if taken_intakes == total_intakes %} is-complete{% endif %}">
+                    <p id="day-progress-text" aria-live="polite">Принято {{ taken_intakes }} из {{ total_intakes }}</p>
+                    <p id="day-complete" class="day-complete{% if taken_intakes != total_intakes %} is-hidden{% endif %}" aria-live="polite">Все приёмы на сегодня отмечены</p>
+                    <div id="day-progress-bar" class="progress-track" role="progressbar" aria-label="Приёмы лекарств за сегодня" aria-valuemin="0" aria-valuemax="{{ total_intakes }}" aria-valuenow="{{ taken_intakes }}">
+                        <div class="progress-fill" style="width: {{ intake_progress }}%;"></div>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    {% regroup today_intakes by medication as medication_groups %}
+                    {% for group in medication_groups %}
+                    <section class="medication-group" aria-label="{{ group.grouper.name }}">
+                        <h4 class="medication-heading">{{ group.grouper.name }}</h4>
+                        <p class="medication-dosage text-muted">{{ group.grouper.dosage }}</p>
+                        {% for intake in group.list %}
+                        <div class="list-group-item" style="padding: 15px 0;">
+                            <div>
+                                <div class="text-muted" style="font-size: 0.85rem; margin-top: 4px;">
+                                    Приём {{ intake.slot }} · {% if intake.scheduled_time %}{{ intake.scheduled_time|time:"H:i" }}{% else %}Без заданного времени{% endif %}<br>
+                                    <span class="intake-state {% if intake.taken %}intake-done{% elif intake.is_overdue %}intake-missed{% endif %}" aria-live="polite">{% if intake.taken %}✓ Принято{% if intake.taken_at %} в {{ intake.taken_at|time:"H:i" }}{% else %} · время не записано{% endif %}{% elif intake.is_overdue %}Пропущено{% else %}Ожидает отметки{% endif %}</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <form class="intake-toggle" method="post" action="{% url 'toggle_intake' intake.pk %}">{% csrf_token %}
+                                <button type="submit" 
+                                   data-scheduled-at="{% if intake.scheduled_at %}{{ intake.scheduled_at|date:"c" }}{% endif %}" data-name="{{ intake.medication.name }}" data-slot="{{ intake.slot }}"
+                                   class="pill-button {% if intake.taken %}taken{% endif %}"
+                                   aria-pressed="{% if intake.taken %}true{% else %}false{% endif %}" aria-label="{% if intake.taken %}Снять отметку{% else %}Отметить приём{% endif %} {{ intake.medication.name }}, приём {{ intake.slot }}" title="Переключить статус приёма">
+                                    <svg class="smile-icon" aria-hidden="true" width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+                                        <circle cx="16" cy="16" r="12"/>
+                                        <circle cx="12" cy="13" r="1.3" fill="currentColor" stroke="none"/>
+                                        <circle cx="20" cy="13" r="1.3" fill="currentColor" stroke="none"/>
+                                        <path d="M10.5 18.5 Q16 25 21.5 18.5"/>
+                                    </svg>
+                                    <svg class="pill-icon" aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+                                        <path d="m8.5 8.5 7 7"/>
+                                    </svg>
+                                </button></form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </section>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 40px 0;">
+                    <p class="text-muted" style="margin: 0; font-size: 0.95rem;">На сегодня приёмов лекарств не запланировано.</p>
+                    <small class="text-muted" style="font-size: 0.85rem; display: block; margin-top: 5px;">Добавьте активный курс во вкладке «Препараты».</small>
+                </div>
+            {% endif %}
+            <section class="extra-intakes">
+                <a href="{% url 'quick_intake' %}" class="btn btn-primary quick-open"><span class="quick-plus" aria-hidden="true">＋</span> Отметить приём</a>
+                {% if as_needed_intakes %}<h3 style="font-size: 1.05rem; margin: 20px 0 8px;">Дополнительно сегодня</h3>
+                {% for intake in as_needed_intakes %}<div class="list-group-item"><div><strong>{{ intake.medication.name }}</strong><div class="text-muted" style="font-size: .85rem;">{{ intake.medication.dosage }} · принято в {{ intake.taken_at|time:"H:i" }}</div>{% if intake.reason %}<div class="text-muted" style="font-size: .85rem; overflow-wrap: anywhere;">{{ intake.reason }}</div>{% endif %}</div><span style="color: #047857;" aria-label="Принято">✓</span></div>{% endfor %}{% endif %}
+            </section>
+            <dialog id="quick-dialog" class="quick-dialog"><div class="quick-panel"><div class="quick-heading"><h2>Отметить приём</h2><button type="button" class="quick-close" aria-label="Закрыть">×</button></div>{% include 'quick_intake_fields.html' %}</div></dialog>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .extra-intakes { border-top: 1px solid #e2e8f0; margin-top: 24px; padding-top: 20px; }
+    .quick-open { width: 100%; box-sizing: border-box; gap: 10px; }
+    .quick-plus { font-size: 1.5rem; line-height: 1; }
+    .quick-dialog { padding: 0; border: 1px solid #e2e8f0; border-radius: 20px; width: min(440px, calc(100% - 32px)); max-height: calc(100vh - 32px); }
+    .quick-dialog::backdrop { background: rgba(15,23,42,.35); }
+    .quick-panel { padding: 24px; }
+    .quick-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+    .quick-heading h2 { font-size: 1.2rem; margin: 0; }
+    .quick-close { width: 44px; height: 44px; border: 0; background: #f8fafc; border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
+
+    .medication-group { padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
+    .medication-group:last-child { border-bottom: 0; padding-bottom: 0; }
+    .medication-heading { margin: 0; font-size: 1.05rem; overflow-wrap: anywhere; }
+    .medication-dosage { margin: 4px 0 2px; font-size: .85rem; overflow-wrap: anywhere; }
+    .medication-group .list-group-item { padding: 8px 0 !important; border-bottom: 0; }
+
+    .day-progress { margin: 0 0 10px; }
+    .day-progress p { margin: 0 0 8px; color: #047857; font-size: .85rem; font-weight: 600; }
+    .day-complete { min-height: 1.4em; font-size: .8rem; color: #047857; transition: opacity .3s; }
+    .day-complete.is-hidden { visibility: hidden; opacity: 0; }
+    .day-progress.is-complete .progress-fill { animation: progress-glow .6s ease-out; }
+    @keyframes progress-glow { 50% { background: #34d399; } }
+    .progress-track { height: 7px; background: #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #059669; border-radius: inherit; transition: width .4s ease; }
+    @media (prefers-reduced-motion: reduce) { .progress-fill, .day-complete { transition: none; animation: none !important; } }
+    .pill-button { position: relative; display: flex; align-items: center; justify-content: center; width: 54px; height: 54px; flex-shrink: 0; border-radius: 50%; border: 2px solid #cbd5e1; background: #fff; color: #64748b; cursor: pointer; transition: background .5s, border-color .5s, color .5s, box-shadow .18s; }
+    .pill-button:hover { box-shadow: 0 4px 12px #d1e9df; }
+    .pill-button:focus-visible { outline: 3px solid #6ee7b7; outline-offset: 3px; }
+    .pill-button.taken { border-color: #6ee7b7; background: #ecfdf5; color: #047857; }
+    .pill-button svg { position: absolute; transition: opacity .45s ease, transform .5s cubic-bezier(.22,.7,.3,1); pointer-events: none; }
+    .pill-button .pill-icon { opacity: 1; transform: rotate(0) scale(1); }
+    .pill-button .smile-icon { opacity: 0; transform: translateY(3px) scale(.7); }
+    .pill-button.taken .pill-icon { opacity: 0; transform: translateY(-3px) scale(.7); }
+    .pill-button.taken .smile-icon { opacity: 1; transform: rotate(0) scale(1); }
+    .pill-button.is-changing { animation: button-bounce .5s ease-out; }
+    .pill-button.is-busy { cursor: wait; }
+    .pill-button.is-busy:not(.taken) .pill-icon,
+    .pill-button.is-busy.taken .smile-icon { animation: intake-spin .6s ease-in-out; }
+    @keyframes intake-spin { 0%, 100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-16deg) scale(.96); } 60% { transform: rotate(12deg) scale(1.02); } }
+    .intake-state { display: inline-block; min-height: 1.4em; }
+    .intake-done { color: #047857; font-weight: 600; }
+    .intake-missed { color: #b45309; font-weight: 600; }
+    .intake-error { color: #b91c1c; }
+    @keyframes button-bounce { 0% { transform: scale(1); } 30% { transform: scale(.97); } 65% { transform: scale(1.03); } 100% { transform: scale(1); } }
+    @media (prefers-reduced-motion: reduce) { .pill-button, .pill-icon, .smile-icon { animation: none !important; transition: none !important; } }
+</style>
+<script>
+function updatePendingState(button, state) {
+    const overdue = Boolean(button.dataset.scheduledAt) && Date.parse(button.dataset.scheduledAt) < Date.now();
+    state.classList.toggle('intake-missed', overdue);
+    state.textContent = overdue ? 'Пропущено' : 'Ожидает отметки';
+}
+setInterval(() => document.querySelectorAll('.intake-toggle .pill-button').forEach(button => {
+    const state = button.closest('.list-group-item').querySelector('.intake-state');
+    if (button.getAttribute('aria-pressed') !== 'true' && !button.disabled && !state.classList.contains('intake-error')) updatePendingState(button, state);
+}), 15000);
+function updateDayProgress() {
+    const buttons = [...document.querySelectorAll('.intake-toggle .pill-button')];
+    const bar = document.getElementById('day-progress-bar');
+    if (!bar) return;
+    const done = buttons.filter(button => button.getAttribute('aria-pressed') === 'true').length;
+    const complete = buttons.length > 0 && done === buttons.length;
+    bar.closest('.day-progress').classList.toggle('is-complete', complete);
+    document.getElementById('day-complete').classList.toggle('is-hidden', !complete);
+    bar.setAttribute('aria-valuenow', String(done));
+    bar.querySelector('.progress-fill').style.width = `${buttons.length ? done / buttons.length * 100 : 0}%`;
+    document.getElementById('day-progress-text').textContent = `Принято ${done} из ${buttons.length}`;
+}
+// Без JavaScript остаётся обычная форма с POST и CSRF-защитой.
+if (window.fetch) document.querySelectorAll('.intake-toggle').forEach(form => {
+    let submitting = false;
+    const button = form.querySelector('button');
+    const state = form.closest('.list-group-item').querySelector('.intake-state');
+    const displayLabel = taken => `${taken ? 'Снять отметку' : 'Отметить приём'} ${button.dataset.name}, приём ${button.dataset.slot}`;
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (submitting) return;
+        submitting = true;
+        button.disabled = true;
+        const animationStarted = performance.now();
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        button.classList.add('is-busy');
+        button.setAttribute('aria-busy', 'true');
+        const data = new FormData(form);
+        data.set('taken', String(button.getAttribute('aria-pressed') !== 'true'));
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        try {
+            const response = await fetch(form.action, {method: 'POST', body: data,
+                headers: {'Accept': 'application/json'}, signal: controller.signal});
+            if (!response.ok) throw new Error('Save failed');
+            const result = await response.json();
+            if (typeof result.taken !== 'boolean') throw new Error('Invalid response');
+            if (!reducedMotion) await new Promise(resolve => setTimeout(resolve, Math.max(0, 600 - (performance.now() - animationStarted))));
+            button.classList.remove('is-busy');
+            button.classList.toggle('taken', result.taken);
+            button.setAttribute('aria-pressed', String(result.taken));
+            updateDayProgress();
+            button.setAttribute('aria-label', displayLabel(result.taken));
+            button.classList.add('is-changing');
+            setTimeout(() => button.classList.remove('is-changing'), 520);
+            state.classList.remove('intake-error');
+            state.classList.toggle('intake-done', result.taken);
+            state.classList.remove('intake-missed');
+            if (result.taken) state.textContent = result.taken_at ? `✓ Принято в ${result.taken_at}` : '✓ Принято · время не записано';
+            else updatePendingState(button, state);
+            if (!reducedMotion) await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+            state.classList.add('intake-error');
+            state.textContent = 'Не удалось сохранить. Повторите.';
+        } finally {
+            clearTimeout(timeout);
+            button.disabled = false;
+            button.classList.remove('is-busy');
+            button.removeAttribute('aria-busy');
+            submitting = false;
+        }
+    });
+});
+</script>
+{% include 'quick_intake_script.html' %}
+{% endblock %}

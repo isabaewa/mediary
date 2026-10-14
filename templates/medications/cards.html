@@ -1,0 +1,10 @@
+{% for med in items %}
+<div class="medication-card card">
+ <div class="medication-card-top"><h4>{{ med.name }}</h4>{% if not med.as_needed %}<span class="text-muted">{{ med.course_status }}</span>{% endif %}</div>
+ <p>{{ med.dosage }}{% if not med.as_needed %}<span class="text-muted"> · Приёмов в день: {{ med.daily_doses }}</span>{% endif %}</p>
+ {% if med.purpose %}<p class="text-muted">{{ med.purpose }}</p>{% endif %}
+ {% if med.frequency %}<p class="text-muted medication-note">{{ med.frequency }}</p>{% endif %}
+ {% if not med.as_needed %}<p class="text-muted medication-dates">{{ med.start_date|date:"d.m.Y" }} — {{ med.end_date|date:"d.m.Y" }}</p>{% endif %}
+ <div class="medication-actions"><a href="{% url 'medication_detail' med.pk %}" class="btn btn-sm btn-outline-primary">{% if med.as_needed %}История приёмов{% else %}График приёма{% endif %}</a><a href="{% url 'medication_update' med.pk %}" class="btn btn-sm btn-light">Редактировать</a><a href="{% url 'medication_delete' med.pk %}" class="btn btn-sm btn-light" style="color: #b91c1c;">Удалить</a></div>
+</div>
+{% endfor %}
