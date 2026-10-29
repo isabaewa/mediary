@@ -12,3 +12,6 @@ __pycache__/
 *.log
 .idea/
 .vscode/
+
+.django_secret_key
+LOCAL_ACCOUNT.txt

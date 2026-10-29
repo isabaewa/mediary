@@ -105,6 +105,9 @@
         @media (max-width: 650px) { .card { padding: 16px !important; } }
         @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
             textarea.form-control { font-family: inherit; resize: vertical; line-height: 1.5; }
+        .account-bar { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin: 0 0 18px; color: #64748b; font-size: .85rem; }
+        .account-bar form { margin: 0; }
+        .account-bar button { font: inherit; border: 0; background: transparent; color: #047857; cursor: pointer; padding: 4px; }
     </style>
 
     <nav class="navbar">
@@ -115,17 +118,18 @@
                 </div>
                 <span class="brand-text"><span class="navbar-brand">Mediary</span><span class="brand-tagline">С заботой о вашем здоровье</span></span>
             </a>
-            <ul class="navbar-nav">
+            {% if user.is_authenticated %}<ul class="navbar-nav">
                 <li><a class="nav-link{% if request.resolver_match.url_name == 'dashboard' %} active{% endif %}" href="{% url 'dashboard' %}"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>Главная</a></li>
                 <li><a class="nav-link{% if 'medication_' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'medication_list' %}"{% if 'medication_' in request.resolver_match.url_name %} aria-current="page"{% endif %}>Препараты</a></li>
                 <li><a class="nav-link{% if 'diary_' in request.resolver_match.url_name %} active{% endif %}" href="{% url 'diary_list' %}"{% if 'diary_' in request.resolver_match.url_name %} aria-current="page"{% endif %}>Дневник</a></li>
                 <li><a class="nav-link{% if request.resolver_match.url_name == 'history' %} active{% endif %}" href="{% url 'history' %}"{% if request.resolver_match.url_name == 'history' %} aria-current="page"{% endif %}>История</a></li>
-            </ul>
+            </ul>{% else %}<a class="nav-link" href="{% url 'login' %}">Войти</a>{% endif %}
         </div>
     </nav>
 
     <div class="main-content">
         <div class="container">
+            {% if user.is_authenticated %}<div class="account-bar"><span>{{ user.username }}</span><a href="{% url 'password_change' %}" style="color: #047857; text-decoration: none;">Сменить пароль</a><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Выйти</button></form></div>{% endif %}
             <!-- БЛОК ВСПЛЫВАЮЩИХ УВЕДОМЛЕНИЙ -->
             {% if messages %}
                 {% for message in messages %}

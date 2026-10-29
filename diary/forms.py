@@ -1,5 +1,6 @@
 from django import forms
 from django.utils import timezone
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .models import Medication, HealthEntry
 
 class MedicationForm(forms.ModelForm):
@@ -87,6 +88,7 @@ class HealthEntryForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}))
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         pain = self.instance.pain_intensity or 0
         self.initial.setdefault('has_pain', 'yes' if pain > 0 else 'no')
@@ -106,6 +108,8 @@ class HealthEntryForm(forms.ModelForm):
 
     def clean_date(self):
         value = self.cleaned_data['date']
+        if self.user and HealthEntry.objects.filter(owner=self.user, date=value).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError('Запись за эту дату уже существует.')
         if value > timezone.localdate():
             raise forms.ValidationError('Самочувствие нельзя записать за будущий день.')
         return value
@@ -126,7 +130,9 @@ class QuickIntakeForm(forms.Form):
     taken_at = forms.DateTimeField(required=False, label='Когда приняли?', input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'type': 'datetime-local', 'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        self.fields['medication'].queryset = Medication.objects.filter(owner=user).order_by('name') if user and user.is_authenticated else Medication.objects.none()
         now = timezone.localtime().replace(second=0, microsecond=0)
         self.fields['taken_at'].initial = now
         self.fields['taken_at'].widget.attrs['max'] = now.strftime('%Y-%m-%dT%H:%M')
@@ -138,7 +144,7 @@ class QuickIntakeForm(forms.Form):
         return value
 
     mode = forms.ChoiceField(choices=[('existing', 'Сохранённое'), ('new', 'Новое')], initial='existing', widget=forms.HiddenInput)
-    medication = forms.ModelChoiceField(queryset=Medication.objects.order_by('name'), required=False, label='Какое лекарство?', empty_label='Выберите лекарство', widget=forms.Select(attrs={'class': 'form-select'}))
+    medication = forms.ModelChoiceField(queryset=Medication.objects.none(), required=False, label='Какое лекарство?', empty_label='Выберите лекарство', widget=forms.Select(attrs={'class': 'form-select'}))
     name = forms.CharField(max_length=100, required=False, label='Название', widget=forms.TextInput(attrs={'class': 'form-control'}))
     dosage = forms.CharField(max_length=100, required=False, label='Дозировка', widget=forms.TextInput(attrs={'class': 'form-control'}))
 
@@ -150,3 +156,11 @@ class QuickIntakeForm(forms.Form):
         elif not data.get('medication'):
             self.add_error('medication', 'Выберите лекарство.')
         return data
+
+
+class SignUpForm(UserCreationForm):
+    """Стандартные проверки логина и двух паролей Django."""
+
+
+class SignInForm(AuthenticationForm):
+    remember_me = forms.BooleanField(required=False, label='Запомнить меня на 14 дней')

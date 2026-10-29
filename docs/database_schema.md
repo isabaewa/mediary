@@ -3,9 +3,11 @@
 
 | Сущность | Поля |
 |---|---|
-| Medication | id PK; name; purpose; dosage; frequency; as_needed; daily_doses; scheduled_times JSON; start_date NULL; end_date NULL |
+| Medication | id PK; owner_id FK → auth_user.id; name; purpose; dosage; frequency; as_needed; daily_doses; scheduled_times JSON; start_date NULL; end_date NULL |
 | MedicationIntake | id PK; medication_id FK; date; slot; scheduled_time NULL; taken; taken_at NULL; is_extra; reason |
-| HealthEntry | id PK; date UNIQUE; mood; condition; symptoms; pain_intensity; note NULL |
+| HealthEntry | id PK; owner_id FK → auth_user.id; date; mood; condition; symptoms; pain_intensity; note NULL |
+
+У пользователя (auth_user) много препаратов и записей самочувствия. Уникальна пара (owner_id, date) дневника.
 
 Связь: Medication 1 → N MedicationIntake. HealthEntry не зависит от препарата.
 

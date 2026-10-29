@@ -1,9 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="section-header"><h2 class="fw-bold" style="font-size: 1.5rem; margin: 0;">Мои препараты</h2><a href="{% url 'medication_create' %}" class="btn btn-primary btn-sm">Добавить препарат</a></div>
-<section aria-labelledby="courses-heading"><h3 id="courses-heading" class="medication-section-title">Курсы <span>{{ courses|length }}</span></h3><div class="medication-grid">{% include 'medications/cards.html' with items=courses %}</div>{% if not courses %}<p class="text-muted">Курсов пока нет.</p>{% endif %}</section>
-<section aria-labelledby="occasional-heading"><h3 id="occasional-heading" class="medication-section-title">Без курса <span>{{ occasional_medications|length }}</span></h3><div class="medication-grid">{% include 'medications/cards.html' with items=occasional_medications %}</div>{% if not occasional_medications %}<p class="text-muted">Препаратов без курса пока нет.</p>{% endif %}</section>
+<form method="post" action="{% url 'medication_section' %}" class="medication-sections" aria-label="Раздел препаратов">
+{% csrf_token %}
+<button name="section" value="all" type="submit" aria-pressed="{% if selected_section == 'all' %}true{% else %}false{% endif %}">Все</button>
+<button name="section" value="courses" type="submit" aria-pressed="{% if selected_section == 'courses' %}true{% else %}false{% endif %}">Курсы</button>
+<button name="section" value="occasional" type="submit" aria-pressed="{% if selected_section == 'occasional' %}true{% else %}false{% endif %}">Без курса</button>
+</form>
+{% if selected_section != 'occasional' %}<section aria-labelledby="courses-heading"><h3 id="courses-heading" class="medication-section-title">Курсы <span>{{ courses|length }}</span></h3><div class="medication-grid">{% include 'medications/cards.html' with items=courses %}</div>{% if not courses %}<p class="text-muted">Курсов пока нет.</p>{% endif %}</section>
+{% endif %}
+{% if selected_section != 'courses' %}<section aria-labelledby="occasional-heading"><h3 id="occasional-heading" class="medication-section-title">Без курса <span>{{ occasional_medications|length }}</span></h3><div class="medication-grid">{% include 'medications/cards.html' with items=occasional_medications %}</div>{% if not occasional_medications %}<p class="text-muted">Препаратов без курса пока нет.</p>{% endif %}</section>
+{% endif %}
 <style>
+.medication-sections { display: inline-flex; gap: 4px; padding: 4px; border-radius: 10px; background: #eaf0ee; margin-bottom: 4px; }
+.medication-sections button { border: 0; background: transparent; border-radius: 7px; padding: 9px 16px; color: #475569; font: inherit; font-size: .9rem; cursor: pointer; }
+.medication-sections button[aria-pressed="true"] { background: #fff; color: #047857; box-shadow: 0 1px 3px #dce4df; }
+.medication-sections button:focus-visible { outline: 2px solid #059669; }
 .medication-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .medication-card { display: flex; flex-direction: column; margin: 0 !important; padding: 22px !important; }
 .medication-card-top { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
