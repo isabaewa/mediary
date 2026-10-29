@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/medications.css' %}">
+{% endblock %}
 {% block content %}
-<div class="section-header"><h2 class="fw-bold" style="font-size: 1.5rem; margin: 0;">Мои препараты</h2><a href="{% url 'medication_create' %}" class="btn btn-primary btn-sm">Добавить препарат</a></div>
+<div class="section-header"><h2 class="fw-bold page-title-compact">Мои препараты</h2><a href="{% url 'medication_create' %}" class="btn btn-primary btn-sm">Добавить препарат</a></div>
 <form method="post" action="{% url 'medication_section' %}" class="medication-sections" aria-label="Раздел препаратов">
 {% csrf_token %}
 <button name="section" value="all" type="submit" aria-pressed="{% if selected_section == 'all' %}true{% else %}false{% endif %}">Все</button>
@@ -11,21 +15,4 @@
 {% endif %}
 {% if selected_section != 'courses' %}<section aria-labelledby="occasional-heading"><h3 id="occasional-heading" class="medication-section-title">Без курса <span>{{ occasional_medications|length }}</span></h3><div class="medication-grid">{% include 'medications/cards.html' with items=occasional_medications %}</div>{% if not occasional_medications %}<p class="text-muted">Препаратов без курса пока нет.</p>{% endif %}</section>
 {% endif %}
-<style>
-.medication-sections { display: inline-flex; gap: 4px; padding: 4px; border-radius: 10px; background: #eaf0ee; margin-bottom: 4px; }
-.medication-sections button { border: 0; background: transparent; border-radius: 7px; padding: 9px 16px; color: #475569; font: inherit; font-size: .9rem; cursor: pointer; }
-.medication-sections button[aria-pressed="true"] { background: #fff; color: #047857; box-shadow: 0 1px 3px #dce4df; }
-.medication-sections button:focus-visible { outline: 2px solid #059669; }
-.medication-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-.medication-card { display: flex; flex-direction: column; margin: 0 !important; padding: 22px !important; }
-.medication-card-top { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
-.medication-card-top h4 { font-size: 1.05rem; margin: 0; }
-.medication-card-top span { font-size: .8rem; white-space: nowrap; }
-.medication-card p { margin: 0 0 8px; font-size: .9rem; line-height: 1.5; overflow-wrap: anywhere; }
-.medication-note { max-width: 54ch; }
-.medication-dates { font-size: .85rem !important; }
-.medication-actions { margin-top: auto; padding-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-.medication-actions .btn { font-size: .8rem; }
-@media (max-width: 600px) { .medication-grid { grid-template-columns: 1fr; } .medication-card-top { flex-wrap: wrap; } }
-.medication-section-title { font-size: 1.1rem; margin: 24px 0 16px; } .medication-section-title span { color: #64748b; font-size: .85rem; font-weight: normal; margin-left: 6px; }</style>
 {% endblock %}

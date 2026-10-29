@@ -5,6 +5,6 @@
  {% if med.purpose %}<p class="text-muted">{{ med.purpose }}</p>{% endif %}
  {% if med.frequency %}<p class="text-muted medication-note">{{ med.frequency }}</p>{% endif %}
  {% if not med.as_needed %}<p class="text-muted medication-dates">{{ med.start_date|date:"d.m.Y" }} — {{ med.end_date|date:"d.m.Y" }}</p>{% endif %}
- <div class="medication-actions"><a href="{% url 'medication_detail' med.pk %}" class="btn btn-sm btn-outline-primary">{% if med.as_needed %}История приёмов{% else %}График приёма{% endif %}</a><a href="{% url 'medication_update' med.pk %}" class="btn btn-sm btn-light">Редактировать</a><a href="{% url 'medication_delete' med.pk %}" class="btn btn-sm btn-light" style="color: #b91c1c;">Удалить</a></div>
+ <div class="medication-actions"><a href="{% url 'medication_detail' med.pk %}" class="btn btn-sm btn-outline-primary">{% if med.as_needed %}История приёмов{% else %}График приёма{% endif %}</a><a href="{% url 'medication_update' med.pk %}" class="btn btn-sm btn-light">Редактировать</a><a href="{% url 'medication_delete' med.pk %}" class="btn btn-sm btn-light text-error">Удалить</a></div>
 </div>
 {% endfor %}

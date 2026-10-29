@@ -1,11 +1,11 @@
 <form method="post" action="{% url 'quick_intake' %}" id="quick-form">
 {% csrf_token %}{{ quick_form.mode }}
-{% if quick_form.errors %}<div role="alert" style="color: #b91c1c;">{{ quick_form.errors }}</div>{% endif %}
-<div id="quick-existing" class="mb-3"><label for="id_medication" class="form-label">Какое лекарство?</label>{{ quick_form.medication }}<p id="quick-dose" class="text-muted" style="font-size: .9rem;"></p></div>
-<button type="button" id="quick-new" class="btn btn-light btn-w100" style="margin-bottom: 20px;">＋ Новое лекарство</button>
+{% if quick_form.errors %}<div role="alert" class="text-error">{{ quick_form.errors }}</div>{% endif %}
+<div id="quick-existing" class="mb-3"><label for="id_medication" class="form-label">Какое лекарство?</label>{{ quick_form.medication }}<p id="quick-dose" class="text-muted text-body-small"></p></div>
+<button type="button" id="quick-new" class="btn btn-light btn-w100 space-bottom-20">＋ Новое лекарство</button>
 <div id="quick-new-fields" hidden><div class="mb-3"><label for="id_name" class="form-label">Название</label>{{ quick_form.name }}</div><div class="mb-3"><label for="id_dosage" class="form-label">Дозировка</label>{{ quick_form.dosage }}</div></div>
 <div class="mb-3"><label class="form-label" for="id_taken_at">Когда приняли?</label>{{ quick_form.taken_at }}</div>
-<div class="mb-3"><label for="id_reason" class="form-label">Причина приёма <span class="text-muted" style="font-weight: normal;">(необязательно)</span></label>{{ quick_form.reason }}</div>
+<div class="mb-3"><label for="id_reason" class="form-label">Причина приёма <span class="text-muted font-normal">(необязательно)</span></label>{{ quick_form.reason }}</div>
 <button type="submit" class="btn btn-primary btn-w100">Принято</button>
 </form>
 {{ quick_medications_data|json_script:"quick-medication-data" }}

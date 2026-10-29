@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="row justify-content-center" style="max-width: 520px; margin: 0 auto;">
+<div class="row justify-content-center delete-shell">
     <div class="col-md-5 text-center">
         <div class="card p-4">
             <h3 class="h4 fw-bold text-danger mb-3">Удалить препарат?</h3>
             <p class="text-muted mb-4">Удалить препарат <strong>{{ medication.name }}</strong> и все связанные приёмы?</p>
             <form method="post">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger w-100 mb-2" style="margin-bottom: 10px;">Да, удалить</button>
+                <button type="submit" class="btn btn-danger w-100 mb-2 space-bottom-10">Да, удалить</button>
                 <a href="{% url 'medication_list' %}" class="btn btn-light w-100">Отмена</a>
             </form>
         </div>

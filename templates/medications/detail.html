@@ -1,26 +1,30 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/medication-detail.css' %}">
+{% endblock %}
 {% block content %}
-<div class="card" style="padding: 25px; border-radius: 16px; margin-bottom: 25px;">
-    <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 15px;">
+<div class="card card-detail-heading">
+    <div class="d-flex justify-content-between align-items-center space-bottom-15">
         <div>
-            <span class="badge bg-primary" style="margin-bottom: 8px;">{{ medication.course_status }}</span>
-            <h2 class="fw-bold" style="font-size: 1.4rem; margin: 0;">{{ medication.name }}</h2>
+            <span class="badge bg-primary space-bottom-8">{{ medication.course_status }}</span>
+            <h2 class="fw-bold list-title">{{ medication.name }}</h2>
             <p><strong>Назначение:</strong> {{ medication.purpose|default:"Не указано" }}</p>
             <p class="text-muted">{% if medication.as_needed %}Иногда{% else %}Приёмов в день: {{ medication.daily_doses }}{% endif %}</p>
-            <p class="text-muted" style="margin: 5px 0 0 0; font-size: 0.95rem;">{{ medication.dosage }}{% if medication.frequency %} · {{ medication.frequency }}{% endif %}</p>
+            <p class="text-muted medication-summary">{{ medication.dosage }}{% if medication.frequency %} · {{ medication.frequency }}{% endif %}</p>
         </div>
         <div class="d-flex gap-2">
             <a href="{% url 'medication_update' medication.pk %}" class="btn btn-sm btn-light">Редактировать</a>
-            <a href="{% url 'medication_delete' medication.pk %}" class="btn btn-sm btn-light" style="color: #dc3545; border-color: #fecaca; background: #fff5f5;">Удалить препарат</a>
+            <a href="{% url 'medication_delete' medication.pk %}" class="btn btn-sm btn-light button-delete">Удалить препарат</a>
         </div>
     </div>
     
-    {% if not medication.as_needed %}<p class="text-muted" style="font-size: 0.9rem; margin: 0;">Сроки курса лечения: <strong>{{ medication.start_date|date:"d.m.Y" }}</strong> — <strong>{{ medication.end_date|date:"d.m.Y" }}</strong></p>{% endif %}
+    {% if not medication.as_needed %}<p class="text-muted compact-description">Сроки курса лечения: <strong>{{ medication.start_date|date:"d.m.Y" }}</strong> — <strong>{{ medication.end_date|date:"d.m.Y" }}</strong></p>{% endif %}
 </div>
 
-<div class="card" style="padding: 25px; border-radius: 16px;">
-    <h3 class="fw-bold" style="font-size: 1.15rem; margin-top: 0; margin-bottom: 20px;">История и расписание приёмов</h3>
-    <div style="overflow-x: auto;">
+<div class="card card-detail">
+    <h3 class="fw-bold history-title">История и расписание приёмов</h3>
+    <div class="table-scroll">
         <table class="table">
             <thead>
                 <tr>
@@ -38,17 +42,17 @@
                     <td>{% if intake.taken_at %}{{ intake.taken_at|date:"d.m.Y H:i" }}{% elif intake.taken %}Время не записано{% else %}—{% endif %}{% if intake.reason %}<div class="text-muted">{{ intake.reason }}</div>{% endif %}</td>
                     <td>
                         {% if intake.taken %}
-                            <span class="badge" style="background-color: #ecfdf5; color: #047857;">✓ Принято</span>
+                            <span class="badge badge-taken">✓ Принято</span>
                         {% elif intake.is_overdue %}
-                            <span class="badge" style="background-color: #fffbeb; color: #92400e;">Пропущено</span>
+                            <span class="badge badge-missed">Пропущено</span>
                         {% else %}
-                            <span class="badge" style="background-color: #f1f5f9; color: #64748b;">Ожидает</span>
+                            <span class="badge badge-pending">Ожидает</span>
                         {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center text-muted" style="padding: 20px 0;">Приёмов не найдено.</td>
+                    <td colspan="4" class="text-center text-muted table-empty">Приёмов не найдено.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -56,5 +60,4 @@
     </div>
     {% if intake_page.paginator.count %}<div class="intake-pagination"><span class="text-muted">{{ intake_page.start_index }}–{{ intake_page.end_index }} из {{ intake_page.paginator.count }}</span><div>{% if intake_page.has_previous %}<a class="btn btn-light btn-sm" href="?page={{ intake_page.previous_page_number }}">Назад</a>{% endif %}{% if intake_page.has_next %}<a class="btn btn-outline-primary btn-sm" href="?page={{ intake_page.next_page_number }}">Показать ещё</a>{% endif %}</div></div>{% endif %}
 </div>
-<style>.intake-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; font-size: .85rem; } .intake-pagination > div { display: flex; gap: 8px; }</style>
 {% endblock %}

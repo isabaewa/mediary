@@ -1,1 +1,5 @@
-{% extends 'base.html' %}{% block content %}<div class="card auth-card" style="max-width: 480px; margin: 20px auto;"><h1 style="font-size: 1.4rem; margin-top: 0;">Регистрация</h1><form method="post" novalidate>{% csrf_token %}{% include 'registration/fields.html' %}<button type="submit" class="btn btn-primary btn-w100">Создать аккаунт</button></form><p style="font-size: .9rem; margin: 20px 0 0;">Уже есть аккаунт? <a href="{% url 'login' %}" style="color: #047857;">Войти</a></p></div>{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}{% block content %}<div class="card auth-card auth-card-wide"><h1 class="auth-title">Регистрация</h1><form method="post" novalidate>{% csrf_token %}{% include 'registration/fields.html' %}<button type="submit" class="btn btn-primary btn-w100">Создать аккаунт</button></form><p class="auth-footer">Уже есть аккаунт? <a href="{% url 'login' %}" class="text-success">Войти</a></p></div>{% endblock %}

@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock %}
 {% block content %}
-<div class="row" style="justify-content: center;">
+<div class="row form-row-centered">
     <div class="col-md-7 form-shell">
-        <div class="card" style="padding: 30px; border-radius: 20px;">
-            <h2 class="fw-bold" style="font-size: 1.4rem; margin-top: 0; margin-bottom: 25px; color: #1e293b;">
+        <div class="card card-form">
+            <h2 class="fw-bold form-title">
                 {{ title }}
             </h2>
             
@@ -11,7 +15,7 @@
                 {% csrf_token %}
                 
                 {% if form.errors %}
-                <div role="alert" style="color: #b91c1c;">
+                <div role="alert" class="text-error">
                     {{ form.non_field_errors }}
                     {% for field in form %}{% for error in field.errors %}
                     <p>{{ field.label }}: {{ error }}</p>
@@ -98,9 +102,9 @@
                         <label class="form-label" for="id_condition">Физическое самочувствие</label>
                         <div class="native-choice">{{ form.condition }}</div>
                         <div class="choice-buttons" role="group" aria-label="Самочувствие" hidden>
-                            <button type="button" class="cond-btn c-v1" data-val="Плохое" style="flex: 1; text-align: center;">Плохое</button>
-                            <button type="button" class="cond-btn c-v2" data-val="Нормальное" style="flex: 1; text-align: center;">Нормальное</button>
-                            <button type="button" class="cond-btn c-v3" data-val="Отличное" style="flex: 1; text-align: center;">Отличное</button>
+                            <button type="button" class="cond-btn c-v1 condition-choice" data-val="Плохое">Плохое</button>
+                            <button type="button" class="cond-btn c-v2 condition-choice" data-val="Нормальное">Нормальное</button>
+                            <button type="button" class="cond-btn c-v3 condition-choice" data-val="Отличное">Отличное</button>
                         </div>
                     </div>
 
@@ -110,7 +114,7 @@
                         {{ form.has_pain }}
                     </fieldset>
                     <div class="mb-3" id="pain-details">
-                        <label class="form-label" for="id_pain_intensity">Интенсивность боли: <span id="pain_num" style="font-weight: 700; color: #059669;">0</span> / 10</label>
+                        <label class="form-label" for="id_pain_intensity">Интенсивность боли: <span id="pain_num" class="pain-number">0</span> / 10</label>
                         <div id="pain-native">{{ form.pain_intensity }}</div>
                         <div class="pain-options" role="group" aria-label="Интенсивность боли от 1 до 10" hidden>
                             {% for i in "123456789" %}
@@ -131,65 +135,13 @@
                 {% endif %}
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 14px;">{% if form.name %}{% if form.instance.pk %}Сохранить изменения{% else %}Добавить препарат{% endif %}{% else %}Сохранить запись{% endif %}</button>
-                    <a href="{% if form.name %}{% url 'medication_list' %}{% else %}{% url 'diary_list' %}{% endif %}" class="btn btn-light" style="flex: 1; padding: 14px; border: 1px solid #e2e8f0;">Отмена</a>
+                    <button type="submit" class="btn btn-primary form-submit">{% if form.name %}{% if form.instance.pk %}Сохранить изменения{% else %}Добавить препарат{% endif %}{% else %}Сохранить запись{% endif %}</button>
+                    <a href="{% if form.name %}{% url 'medication_list' %}{% else %}{% url 'diary_list' %}{% endif %}" class="btn btn-light form-cancel">Отмена</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-<style>
-    .form-shell { max-width: 720px; }
-    .intake-mode { padding: 0; border: 0; margin: 0 0 16px; min-width: 0; }
-    .form-shell .form-label { margin-top: 0; margin-bottom: 6px; }
-    .form-shell .form-control, .form-shell .form-select { margin-top: 0; }
-    #id_intake_mode { display: flex; gap: 8px; max-width: 320px; }
-    #id_intake_mode > div { flex: 1; }
-    #id_intake_mode label { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; box-sizing: border-box; padding: 8px 12px; font-size: .9rem; border: 1px solid #cbd5e1; border-radius: 10px; cursor: pointer; }
-    #id_intake_mode label:has(input:checked) { background: #ecfdf5; border-color: #059669; color: #047857; }
-    #id_intake_mode input { accent-color: #059669; }
-    .dose-counter { display: flex; align-items: center; gap: 8px; }
-    .dose-counter input { text-align: center; min-width: 0; margin: 0; }
-    .dose-step { flex: 0 0 44px; height: 44px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc; color: #047857; font-size: 1.4rem; cursor: pointer; }
-    .dose-step:disabled { opacity: .4; cursor: default; }
-    .dose-step:focus-visible { outline: 3px solid #6ee7b7; outline-offset: 2px; }
-    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
-    .form-details { margin-bottom: 16px; padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafcfb; }
-    .form-details summary { cursor: pointer; color: #334155; font-size: .9rem; font-weight: 600; }
-    .detail-optional { color: #64748b; font-size: .78rem; font-weight: 400; margin-left: 6px; }
-    .time-control { display: flex; align-items: center; gap: 6px; }
-    .time-control input { min-width: 0; }
-    .time-control button { padding: 8px; font-size: .75rem; }
-    .time-control { display: flex; align-items: center; gap: 8px; }
-    .time-control input { min-width: 0; flex: 1; margin: 0; }
-    .time-remove { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; height: 44px; padding: 0; border: 0; border-radius: 8px; color: #dc2626; background: transparent; cursor: pointer; }
-    .time-remove:hover { background: #fef2f2; color: #b91c1c; }
-    .time-remove:focus-visible { outline: 2px solid #dc2626; outline-offset: 2px; }
-    .dose-slot { margin-top: 4px; }
-    .form-actions { display: flex; gap: 12px; margin-top: 24px; }
-    .choice-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .pain-options { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
-    .pain-block.p-b { padding: 0; min-height: 44px; color: #1e293b; background: hsl(var(--pain-hue) 76% 90%); border-color: hsl(var(--pain-hue) 55% 75%); }
-    .pain-block.p-b.active { background: hsl(var(--pain-hue) 76% 84%); border-color: #334155; outline: 2px solid #334155; outline-offset: 2px; color: #1e293b; transform: none; }
-    @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } .choice-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } .choice-buttons button:last-child { grid-column: 1 / -1; } .choice-buttons button { min-width: 0; } .pain-options { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; } .detail-optional { display: block; margin: 4px 0 0 16px; } }
-    .pain-question { padding: 0; border: 0; margin-inline: 0; }
-    #id_has_pain { display: flex; gap: 12px; margin-top: 8px; }
-    #id_has_pain label { display: flex; gap: 8px; align-items: center; padding: 10px 16px; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; }
-    #id_has_pain input { accent-color: #059669; }
-    .support-note { background: #f0fdf7; color: #36594c; border-left: 3px solid #a7d8c3; padding: 12px 16px; border-radius: 8px; font-size: .9rem; line-height: 1.6; margin: 0 0 16px; }
-    .mood-btn, .cond-btn, .pain-block { padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.15s ease; user-select: none; background: #f8fafc; border: 2px solid #e2e8f0; }
-    .mood-btn:hover, .cond-btn:hover, .pain-block:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
-    .mood-btn.m-v1.active { border-color: #ef4444 !important; background-color: #ef4444 !important; color: #fff !important; }
-    .mood-btn.m-v2.active { border-color: #f97316 !important; background-color: #f97316 !important; color: #fff !important; }
-    .mood-btn.m-v3.active { border-color: #64748b !important; background-color: #64748b !important; color: #fff !important; }
-    .mood-btn.m-v4.active { border-color: #10b981 !important; background-color: #10b981 !important; color: #fff !important; }
-    .mood-btn.m-v5.active { border-color: #059669 !important; background-color: #059669 !important; color: #fff !important; }
-    .cond-btn.c-v1.active { border-color: #ef4444 !important; background-color: #ef4444 !important; color: #fff !important; }
-    .cond-btn.c-v2.active { border-color: #64748b !important; background-color: #64748b !important; color: #fff !important; }
-    .cond-btn.c-v3.active { border-color: #059669 !important; background-color: #059669 !important; color: #fff !important; }
-
-</style>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -272,8 +224,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const painOptions = document.querySelector('.pain-options');
     if (painOptions) painOptions.hidden = false;
     document.querySelectorAll('.pain-block').forEach(button => {
-        const hue = 112 * (10 - Number(button.dataset.val)) / 9;
-        button.style.setProperty('--pain-hue', String(hue));
         button.setAttribute('aria-label', `Боль ${button.dataset.val} из 10`);
     });
     const moodBtns = document.querySelectorAll(".mood-btn");

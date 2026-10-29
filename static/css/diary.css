@@ -1,0 +1,60 @@
+.cond-Отличное {
+    background: #ecfdf5 !important;
+    color: #047857;
+}
+
+.cond-Нормальное {
+    background: #f1f5f9 !important;
+    color: #475569;
+}
+
+.cond-Плохое {
+    background: #fef2f2 !important;
+    color: #991b1b;
+}
+
+[class*="pain-level-"] {
+    color: #334155;
+    padding: 6px 12px;
+    background: #f1f5f9;
+}
+
+.pain-level-1 {
+    background: hsl(112 76% 90%);
+}
+
+.pain-level-2 {
+    background: hsl(100 76% 90%);
+}
+
+.pain-level-3 {
+    background: hsl(87 76% 90%);
+}
+
+.pain-level-4 {
+    background: hsl(75 76% 90%);
+}
+
+.pain-level-5 {
+    background: hsl(62 76% 90%);
+}
+
+.pain-level-6 {
+    background: hsl(50 76% 90%);
+}
+
+.pain-level-7 {
+    background: hsl(37 76% 90%);
+}
+
+.pain-level-8 {
+    background: hsl(25 76% 90%);
+}
+
+.pain-level-9 {
+    background: hsl(12 76% 90%);
+}
+
+.pain-level-10 {
+    background: hsl(0 76% 90%);
+}

@@ -1,0 +1,13 @@
+.intake-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 16px;
+    font-size: .85rem;
+}
+
+.intake-pagination > div {
+    display: flex;
+    gap: 8px;
+}

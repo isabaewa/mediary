@@ -1,36 +1,40 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
 {% block content %}
 <div class="row">
     <!-- Левая колонка -->
     <div class="col-md-5">
         <div class="card">
-            <h2 class="fw-bold" style="font-size: 1.3rem; margin-top: 0; margin-bottom: 5px;">Привет! 👋</h2>
-            <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 20px;">Это твой дневник самочувствия на сегодня.</p>
+            <h2 class="fw-bold welcome-title">Привет! 👋</h2>
+            <p class="text-muted intro-text">Это твой дневник самочувствия на сегодня.</p>
             
             {% if today_entry %}
-                <div class="alert-success" style="margin-bottom: 20px;">
-                    <h5 class="fw-bold" style="margin-top: 0; margin-bottom: 10px; font-size: 0.95rem;">Запись за сегодня заполнена!</h5>
-                    <div style="font-size: 0.9rem; line-height: 1.5;">
+                <div class="alert-success space-bottom-20">
+                    <h5 class="fw-bold entry-success-title">Запись за сегодня заполнена!</h5>
+                    <div class="entry-summary">
                         <strong>Физическое состояние:</strong> {{ today_entry.condition }}<br>
                         <strong>Настроение:</strong> {{ today_entry.mood }}<br>
                         <strong>Симптомы:</strong> {{ today_entry.symptoms }}
                     </div>
                 </div>
-                <a href="{% url 'diary_detail' today_entry.pk %}" class="btn btn-outline-primary btn-sm btn-w100" style="margin-top: 5px;">Посмотреть запись</a>
+                <a href="{% url 'diary_detail' today_entry.pk %}" class="btn btn-outline-primary btn-sm btn-w100 space-top-5">Посмотреть запись</a>
             {% else %}
-                <div style="background-color: #f8fafc; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; border: 1px dashed #e2e8f0;">
-                    <p class="text-muted" style="font-size: 0.9rem; margin: 0;">Ты ещё не отмечала самочувствие сегодня.</p>
+                <div class="empty-diary-prompt">
+                    <p class="text-muted compact-description">Ты ещё не отмечала самочувствие сегодня.</p>
                 </div>
                 <a href="{% url 'diary_create' %}" class="btn btn-primary btn-w100">Заполни дневник</a>
             {% endif %}
         </div>
         
-        <div class="card" style="padding: 20px;">
-            <h5 class="fw-bold" style="font-size: 0.85rem; color: #64748b; margin-top: 0; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Быстрые действия</h5>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="{% url 'medication_create' %}" class="btn btn-light btn-sm" style="justify-content: flex-start; background: #fff; border: 1px solid #e2e8f0;">Добавить новый препарат</a>
-                <a href="{% url 'diary_create' %}" class="btn btn-light btn-sm" style="justify-content: flex-start; background: #fff; border: 1px solid #e2e8f0;">Запись за прошедшие дни</a>
-                <a href="{% url 'history' %}" class="btn btn-light btn-sm" style="justify-content: flex-start; background: #fff; border: 1px solid #e2e8f0;">Посмотреть архив истории</a>
+        <div class="card card-compact">
+            <h5 class="fw-bold quick-actions-title">Быстрые действия</h5>
+            <div class="quick-actions">
+                <a href="{% url 'medication_create' %}" class="btn btn-light btn-sm quick-action">Добавить новый препарат</a>
+                <a href="{% url 'diary_create' %}" class="btn btn-light btn-sm quick-action">Запись за прошедшие дни</a>
+                <a href="{% url 'history' %}" class="btn btn-light btn-sm quick-action">Посмотреть архив истории</a>
             </div>
         </div>
     </div>
@@ -38,29 +42,27 @@
     <!-- Правая колонка: Чек-лист -->
     <div class="col-md-7">
         <div class="card">
-            <h3 class="fw-bold" style="font-size: 1.15rem; margin-top: 0; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
-                Приём лекарств на сегодня <span class="text-muted" style="font-size: 0.9rem; font-weight: normal;">({{ today|date:"d E" }})</span>
+            <h3 class="fw-bold intakes-title">
+                Приём лекарств на сегодня <span class="text-muted date-caption">({{ today|date:"d E" }})</span>
             </h3>
-            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 20px; margin-top: 0;">Нажмите на пилюлю справа, чтобы отметить выполненный приём</p>
+            <p class="text-muted intakes-hint">Нажмите на пилюлю справа, чтобы отметить выполненный приём</p>
             
             {% if today_intakes %}
                 <div class="day-progress{% if taken_intakes == total_intakes %} is-complete{% endif %}">
                     <p id="day-progress-text" aria-live="polite">Принято {{ taken_intakes }} из {{ total_intakes }}</p>
                     <p id="day-complete" class="day-complete{% if taken_intakes != total_intakes %} is-hidden{% endif %}" aria-live="polite">Все приёмы на сегодня отмечены</p>
-                    <div id="day-progress-bar" class="progress-track" role="progressbar" aria-label="Приёмы лекарств за сегодня" aria-valuemin="0" aria-valuemax="{{ total_intakes }}" aria-valuenow="{{ taken_intakes }}">
-                        <div class="progress-fill" style="width: {{ intake_progress }}%;"></div>
-                    </div>
+                    <progress id="day-progress-bar" class="progress-track" aria-label="Приёмы лекарств за сегодня" max="{{ total_intakes }}" value="{{ taken_intakes }}">{{ intake_progress }}%</progress>
                 </div>
-                <div style="display: flex; flex-direction: column;">
+                <div class="intake-stack">
                     {% regroup today_intakes by medication as medication_groups %}
                     {% for group in medication_groups %}
                     <section class="medication-group" aria-label="{{ group.grouper.name }}">
                         <h4 class="medication-heading">{{ group.grouper.name }}</h4>
                         <p class="medication-dosage text-muted">{{ group.grouper.dosage }}</p>
                         {% for intake in group.list %}
-                        <div class="list-group-item" style="padding: 15px 0;">
+                        <div class="list-group-item intake-row">
                             <div>
-                                <div class="text-muted" style="font-size: 0.85rem; margin-top: 4px;">
+                                <div class="text-muted intake-metadata">
                                     Приём {{ intake.slot }} · {% if intake.scheduled_time %}{{ intake.scheduled_time|time:"H:i" }}{% else %}Без заданного времени{% endif %}<br>
                                     <span class="intake-state {% if intake.taken %}intake-done{% elif intake.is_overdue %}intake-missed{% endif %}" aria-live="polite">{% if intake.taken %}✓ Принято{% if intake.taken_at %} в {{ intake.taken_at|time:"H:i" }}{% else %} · время не записано{% endif %}{% elif intake.is_overdue %}Пропущено{% else %}Ожидает отметки{% endif %}</span>
                                 </div>
@@ -90,69 +92,21 @@
                     {% endfor %}
                 </div>
             {% else %}
-                <div style="text-align: center; padding: 40px 0;">
-                    <p class="text-muted" style="margin: 0; font-size: 0.95rem;">На сегодня приёмов лекарств не запланировано.</p>
-                    <small class="text-muted" style="font-size: 0.85rem; display: block; margin-top: 5px;">Добавьте активный курс во вкладке «Препараты».</small>
+                <div class="empty-intakes">
+                    <p class="text-muted empty-intakes-text">На сегодня приёмов лекарств не запланировано.</p>
+                    <small class="text-muted empty-intakes-hint">Добавьте активный курс во вкладке «Препараты».</small>
                 </div>
             {% endif %}
             <section class="extra-intakes">
                 <a href="{% url 'quick_intake' %}" class="btn btn-primary quick-open"><span class="quick-plus" aria-hidden="true">＋</span> Отметить приём</a>
-                {% if as_needed_intakes %}<h3 style="font-size: 1.05rem; margin: 20px 0 8px;">Дополнительно сегодня</h3>
-                {% for intake in as_needed_intakes %}<div class="list-group-item"><div><strong>{{ intake.medication.name }}</strong><div class="text-muted" style="font-size: .85rem;">{{ intake.medication.dosage }} · принято в {{ intake.taken_at|time:"H:i" }}</div>{% if intake.reason %}<div class="text-muted" style="font-size: .85rem; overflow-wrap: anywhere;">{{ intake.reason }}</div>{% endif %}</div><span style="color: #047857;" aria-label="Принято">✓</span></div>{% endfor %}{% endif %}
+                {% if as_needed_intakes %}<h3 class="extra-intakes-title">Дополнительно сегодня</h3>
+                {% for intake in as_needed_intakes %}<div class="list-group-item"><div><strong>{{ intake.medication.name }}</strong><div class="text-muted text-small">{{ intake.medication.dosage }} · принято в {{ intake.taken_at|time:"H:i" }}</div>{% if intake.reason %}<div class="text-muted intake-description">{{ intake.reason }}</div>{% endif %}</div><span aria-label="Принято" class="text-success">✓</span></div>{% endfor %}{% endif %}
             </section>
             <dialog id="quick-dialog" class="quick-dialog"><div class="quick-panel"><div class="quick-heading"><h2>Отметить приём</h2><button type="button" class="quick-close" aria-label="Закрыть">×</button></div>{% include 'quick_intake_fields.html' %}</div></dialog>
 
         </div>
     </div>
 </div>
-
-<style>
-    .extra-intakes { border-top: 1px solid #e2e8f0; margin-top: 24px; padding-top: 20px; }
-    .quick-open { width: 100%; box-sizing: border-box; gap: 10px; }
-    .quick-plus { font-size: 1.5rem; line-height: 1; }
-    .quick-dialog { padding: 0; border: 1px solid #e2e8f0; border-radius: 20px; width: min(440px, calc(100% - 32px)); max-height: calc(100vh - 32px); }
-    .quick-dialog::backdrop { background: rgba(15,23,42,.35); }
-    .quick-panel { padding: 24px; }
-    .quick-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-    .quick-heading h2 { font-size: 1.2rem; margin: 0; }
-    .quick-close { width: 44px; height: 44px; border: 0; background: #f8fafc; border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
-
-    .medication-group { padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
-    .medication-group:last-child { border-bottom: 0; padding-bottom: 0; }
-    .medication-heading { margin: 0; font-size: 1.05rem; overflow-wrap: anywhere; }
-    .medication-dosage { margin: 4px 0 2px; font-size: .85rem; overflow-wrap: anywhere; }
-    .medication-group .list-group-item { padding: 8px 0 !important; border-bottom: 0; }
-
-    .day-progress { margin: 0 0 10px; }
-    .day-progress p { margin: 0 0 8px; color: #047857; font-size: .85rem; font-weight: 600; }
-    .day-complete { min-height: 1.4em; font-size: .8rem; color: #047857; transition: opacity .3s; }
-    .day-complete.is-hidden { visibility: hidden; opacity: 0; }
-    .day-progress.is-complete .progress-fill { animation: progress-glow .6s ease-out; }
-    @keyframes progress-glow { 50% { background: #34d399; } }
-    .progress-track { height: 7px; background: #e2e8f0; border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #059669; border-radius: inherit; transition: width .4s ease; }
-    @media (prefers-reduced-motion: reduce) { .progress-fill, .day-complete { transition: none; animation: none !important; } }
-    .pill-button { position: relative; display: flex; align-items: center; justify-content: center; width: 54px; height: 54px; flex-shrink: 0; border-radius: 50%; border: 2px solid #cbd5e1; background: #fff; color: #64748b; cursor: pointer; transition: background .5s, border-color .5s, color .5s, box-shadow .18s; }
-    .pill-button:hover { box-shadow: 0 4px 12px #d1e9df; }
-    .pill-button:focus-visible { outline: 3px solid #6ee7b7; outline-offset: 3px; }
-    .pill-button.taken { border-color: #6ee7b7; background: #ecfdf5; color: #047857; }
-    .pill-button svg { position: absolute; transition: opacity .45s ease, transform .5s cubic-bezier(.22,.7,.3,1); pointer-events: none; }
-    .pill-button .pill-icon { opacity: 1; transform: rotate(0) scale(1); }
-    .pill-button .smile-icon { opacity: 0; transform: translateY(3px) scale(.7); }
-    .pill-button.taken .pill-icon { opacity: 0; transform: translateY(-3px) scale(.7); }
-    .pill-button.taken .smile-icon { opacity: 1; transform: rotate(0) scale(1); }
-    .pill-button.is-changing { animation: button-bounce .5s ease-out; }
-    .pill-button.is-busy { cursor: wait; }
-    .pill-button.is-busy:not(.taken) .pill-icon,
-    .pill-button.is-busy.taken .smile-icon { animation: intake-spin .6s ease-in-out; }
-    @keyframes intake-spin { 0%, 100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-16deg) scale(.96); } 60% { transform: rotate(12deg) scale(1.02); } }
-    .intake-state { display: inline-block; min-height: 1.4em; }
-    .intake-done { color: #047857; font-weight: 600; }
-    .intake-missed { color: #b45309; font-weight: 600; }
-    .intake-error { color: #b91c1c; }
-    @keyframes button-bounce { 0% { transform: scale(1); } 30% { transform: scale(.97); } 65% { transform: scale(1.03); } 100% { transform: scale(1); } }
-    @media (prefers-reduced-motion: reduce) { .pill-button, .pill-icon, .smile-icon { animation: none !important; transition: none !important; } }
-</style>
 <script>
 function updatePendingState(button, state) {
     const overdue = Boolean(button.dataset.scheduledAt) && Date.parse(button.dataset.scheduledAt) < Date.now();
@@ -171,8 +125,9 @@ function updateDayProgress() {
     const complete = buttons.length > 0 && done === buttons.length;
     bar.closest('.day-progress').classList.toggle('is-complete', complete);
     document.getElementById('day-complete').classList.toggle('is-hidden', !complete);
-    bar.setAttribute('aria-valuenow', String(done));
-    bar.querySelector('.progress-fill').style.width = `${buttons.length ? done / buttons.length * 100 : 0}%`;
+    bar.max = buttons.length || 1;
+    bar.value = done;
+    bar.textContent = `${buttons.length ? Math.round(done / buttons.length * 100) : 0}%`;
     document.getElementById('day-progress-text').textContent = `Принято ${done} из ${buttons.length}`;
 }
 // Без JavaScript остаётся обычная форма с POST и CSRF-защитой.
