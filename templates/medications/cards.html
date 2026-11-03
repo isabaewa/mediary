@@ -1,6 +1,6 @@
 {% for med in items %}
 <div class="medication-card card">
- <div class="medication-card-top"><h4>{{ med.name }}</h4>{% if not med.as_needed %}<span class="text-muted">{{ med.course_status }}</span>{% endif %}</div>
+ <div class="medication-card-top"><h4>{{ med.name }}</h4><span class="text-muted">{{ med.course_status }}</span></div>
  <p>{{ med.dosage }}{% if not med.as_needed %}<span class="text-muted"> · Приёмов в день: {{ med.daily_doses }}</span>{% endif %}</p>
  {% if med.purpose %}<p class="text-muted">{{ med.purpose }}</p>{% endif %}
  {% if med.frequency %}<p class="text-muted medication-note">{{ med.frequency }}</p>{% endif %}

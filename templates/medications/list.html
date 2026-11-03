@@ -2,17 +2,23 @@
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/medications.css' %}">
+<link rel="stylesheet" href="{% static 'css/lists.css' %}">
 {% endblock %}
 {% block content %}
 <div class="section-header"><h2 class="fw-bold page-title-compact">Мои препараты</h2><a href="{% url 'medication_create' %}" class="btn btn-primary btn-sm">Добавить препарат</a></div>
 <form method="post" action="{% url 'medication_section' %}" class="medication-sections" aria-label="Раздел препаратов">
 {% csrf_token %}
+{% for field in filter_form %}{% if field.name != 'section' %}<input type="hidden" name="{{ field.name }}" value="{{ field.value|default_if_none:'' }}">{% endif %}{% endfor %}
 <button name="section" value="all" type="submit" aria-pressed="{% if selected_section == 'all' %}true{% else %}false{% endif %}">Все</button>
 <button name="section" value="courses" type="submit" aria-pressed="{% if selected_section == 'courses' %}true{% else %}false{% endif %}">Курсы</button>
 <button name="section" value="occasional" type="submit" aria-pressed="{% if selected_section == 'occasional' %}true{% else %}false{% endif %}">Без курса</button>
 </form>
-{% if selected_section != 'occasional' %}<section aria-labelledby="courses-heading"><h3 id="courses-heading" class="medication-section-title">Курсы <span>{{ courses|length }}</span></h3><div class="medication-grid">{% include 'medications/cards.html' with items=courses %}</div>{% if not courses %}<p class="text-muted">Курсов пока нет.</p>{% endif %}</section>
+{% include 'components/list_filters.html' %}
+{# Общая сетка сохраняет выбранный порядок и между регулярными и разовыми препаратами. #}
+{% if medications %}
+<div class="medication-grid">{% include 'medications/cards.html' with items=medications %}</div>
+{% elif not filter_form.errors %}
+<p class="list-empty card">{% if total_records %}По заданным условиям препараты не найдены. Измените поиск или сбросьте фильтры.{% else %}Препаратов пока нет. Добавьте первый препарат.{% endif %}</p>
 {% endif %}
-{% if selected_section != 'courses' %}<section aria-labelledby="occasional-heading"><h3 id="occasional-heading" class="medication-section-title">Без курса <span>{{ occasional_medications|length }}</span></h3><div class="medication-grid">{% include 'medications/cards.html' with items=occasional_medications %}</div>{% if not occasional_medications %}<p class="text-muted">Препаратов без курса пока нет.</p>{% endif %}</section>
-{% endif %}
+{% include 'components/pagination.html' %}
 {% endblock %}

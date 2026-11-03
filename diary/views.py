@@ -6,6 +6,7 @@ JSON используется только для отметки планово�
 """
 
 from datetime import datetime, time
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -14,11 +15,14 @@ from django.db import transaction
 from django.db.models import Case, DateField, IntegerField, Q, Value, When
 from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from .filter_forms import HealthEntryFilterForm, MedicationFilterForm
 from .forms import HealthEntryForm, MedicationForm, QuickIntakeForm
 from .models import HealthEntry, Medication, MedicationIntake
+from .selectors import health_entries_for, medications_for
 from .services import record_extra_intake, sync_intakes
 
 
@@ -177,18 +181,32 @@ def toggle_intake_status_view(request, pk):
 
 @login_required
 def medication_list_view(request):
-    """Показать свои препараты с разделом, выбранным в сессии."""
-    medications = Medication.objects.filter(owner=request.user)
+    """Показать свои препараты: GET-поиск, фильтры, стабильный порядок и страницы."""
     section = request.session.get('medication_section', 'all')
     if section not in ('all', 'courses', 'occasional'):
         section = 'all'
+    params = request.GET.copy()
+    params.setdefault('section', section)
+    params.setdefault('sort', 'name_asc')
+    form = MedicationFilterForm(params)
+    records = Medication.objects.filter(owner=request.user)
+    total = records.count()
+    if form.is_valid():
+        section = form.cleaned_data['section']
+        records = medications_for(request.user, form.cleaned_data)
+    else:
+        # Невалидный URL показывает ошибки, а не расширяет выборку до всех записей.
+        records = records.none()
+    page = Paginator(records, 20).get_page(request.GET.get('page'))
     return render(
         request,
         'medications/list.html',
         {
-            'medications': medications,
-            'courses': medications.filter(as_needed=False),
-            'occasional_medications': medications.filter(as_needed=True),
+            'medications': page,
+            'page_obj': page,
+            'filter_form': form,
+            'total_records': total,
+            'reset_url': reverse('medication_list') + '?section=all',
             'selected_section': section,
         },
     )
@@ -202,6 +220,11 @@ def medication_section_view(request):
     if section not in ('all', 'courses', 'occasional'):
         return HttpResponseBadRequest('Неизвестный раздел.')
     request.session['medication_section'] = section
+    # Переключение сохранённого раздела не сбрасывает поиск и сортировку.
+    params = {key: request.POST[key] for key in ('q', 'status', 'sort') if request.POST.get(key)}
+    if params:
+        params['section'] = section
+        return redirect(reverse('medication_list') + '?' + urlencode(params))
     return redirect('medication_list')
 
 
@@ -295,9 +318,27 @@ def medication_delete_view(request, pk):
 
 @login_required
 def diary_list_view(request):
-    """Показать записи текущего пользователя от новых к старым."""
-    entries = HealthEntry.objects.filter(owner=request.user).order_by('-date')
-    return render(request, 'diary/list.html', {'entries': entries})
+    """Отобразить личный дневник с поиском, диапазонами и сортировкой."""
+    params = request.GET.copy()
+    params.setdefault('sort', 'date_desc')
+    form = HealthEntryFilterForm(params)
+    records = HealthEntry.objects.filter(owner=request.user)
+    total = records.count()
+    records = (
+        health_entries_for(request.user, form.cleaned_data) if form.is_valid() else records.none()
+    )
+    page = Paginator(records, 20).get_page(request.GET.get('page'))
+    return render(
+        request,
+        'diary/list.html',
+        {
+            'entries': page,
+            'page_obj': page,
+            'filter_form': form,
+            'total_records': total,
+            'reset_url': reverse('diary_list'),
+        },
+    )
 
 
 @login_required

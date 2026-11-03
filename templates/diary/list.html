@@ -2,6 +2,7 @@
 {% load static %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/diary.css' %}">
+<link rel="stylesheet" href="{% static 'css/lists.css' %}">
 {% endblock %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center space-bottom-25">
@@ -9,6 +10,7 @@
     <a href="{% url 'diary_create' %}" class="btn btn-primary btn-sm">Новая запись</a>
 </div>
 
+{% include 'components/list_filters.html' %}
 <div class="card card-list">
     <div class="table-scroll">
         <table class="table">
@@ -26,7 +28,6 @@
                 <tr>
                     <td><strong>{{ entry.date|date:"d.m.Y" }}</strong></td>
                     <td>
-                        <!-- Чистые классы без условий внутри тега style -->
                         <span class="badge cond-{{ entry.condition }}">
                             {{ entry.condition }}
                         </span>
@@ -43,7 +44,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-muted table-empty-padded">В дневнике пока нет ни одной записи.</td>
+                    <td colspan="5" class="text-muted table-empty-padded">{% if filter_form.errors %}Исправьте параметры фильтрации.{% elif total_records %}По заданным условиям записи не найдены. Измените поиск или сбросьте фильтры.{% else %}В дневнике пока нет ни одной записи.{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -51,5 +52,5 @@
     </div>
 </div>
 
-<!-- Выносим всю логику цветов вниз, чтобы SonarQube не сходил с ума -->
+{% include 'components/pagination.html' %}
 {% endblock %}

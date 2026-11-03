@@ -84,6 +84,8 @@ class BrowserCase(StaticLiveServerTestCase):
                 'MEDIARY_TEST_ENTRY': str(self.entry.pk),
                 'MEDIARY_TEST_WIDTH': str(self.viewport[0]),
                 'MEDIARY_TEST_HEIGHT': str(self.viewport[1]),
+                'MEDIARY_TEST_DATE_FROM': (now.date() - timedelta(days=25)).isoformat(),
+                'MEDIARY_TEST_DATE_TO': (now.date() - timedelta(days=1)).isoformat(),
                 'MEDIARY_TEST_TIME_MIN': (now - timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M'),
                 'MEDIARY_TEST_TIME_MAX': (now + timedelta(minutes=2)).strftime('%Y-%m-%dT%H:%M'),
             }

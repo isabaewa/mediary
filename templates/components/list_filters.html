@@ -1,0 +1,24 @@
+{# GET делает выборку воспроизводимой по URL; новая отправка начинает с первой страницы. #}
+<form method="get" class="list-filters card" role="search" aria-label="Поиск и фильтры">
+    {% if filter_form.errors %}
+    <div class="filter-error-summary" role="alert">Проверьте параметры поиска и фильтрации.</div>
+    {% endif %}
+    {% for field in filter_form.hidden_fields %}{{ field }}{{ field.errors }}{% endfor %}
+    <div class="filter-grid">
+        {% for field in filter_form.visible_fields %}
+        <div class="filter-field filter-field--{{ field.name }}">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<p id="{{ field.auto_id }}_helptext" class="filter-help">{{ field.help_text }}</p>{% endif %}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="filter-actions">
+        <button type="submit" class="btn btn-primary">Применить</button>
+        <a class="btn btn-light" href="{{ reset_url }}">Сбросить</a>
+    </div>
+</form>
+{% if not filter_form.errors %}
+<p class="list-result-count" role="status">Найдено: {{ page_obj.paginator.count }} из {{ total_records }}</p>
+{% endif %}

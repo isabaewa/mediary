@@ -1,0 +1,79 @@
+/* Общие элементы списков: GET-фильтры, число результатов и постраничная навигация. */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.filter-field {
+    min-width: 0;
+}
+
+.filter-field--q, .filter-field--sort {
+    grid-column: span 2;
+}
+
+.filter-field .form-label {
+    margin-top: 0;
+}
+
+.filter-help {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: .78rem;
+    line-height: 1.5;
+}
+
+.filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.filter-error-summary, .list-filters .errorlist {
+    color: #b91c1c;
+    font-size: .85rem;
+}
+
+.filter-error-summary {
+    margin-bottom: 16px;
+}
+
+.list-filters .errorlist {
+    margin: 6px 0 0;
+    padding-left: 18px;
+}
+
+.list-result-count {
+    margin: 16px 0;
+    color: #475569;
+    font-size: .9rem;
+}
+
+.list-empty {
+    padding: 24px;
+    text-align: center;
+    color: #64748b;
+}
+
+.list-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+    font-size: .85rem;
+}
+
+@media (max-width: 650px) {
+    .filter-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .filter-field--status {
+        grid-column: span 2;
+    }
+    .list-pagination {
+        flex-wrap: wrap;
+    }
+}

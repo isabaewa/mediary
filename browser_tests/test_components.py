@@ -1,11 +1,38 @@
-"""Пользовательские сценарии с настоящими POST, CSRF и тестовой базой Django."""
+"""Пользовательские сценарии с настоящими POST, GET и тестовой базой Django."""
 
-from diary.models import MedicationIntake
+from datetime import timedelta
+
+from django.utils import timezone
+
+from diary.models import HealthEntry, Medication, MedicationIntake
 
 from .base import BrowserCase
 
 
 class ComponentTests(BrowserCase):
+    def test_medication_search_filters_sort_and_pagination(self):
+        for index in range(25):
+            Medication.objects.create(
+                owner=self.user,
+                name=f'Запас {index:02}',
+                dosage='Тестовая дозировка',
+                as_needed=True,
+            )
+        self.run_browser('medicationList')
+
+    def test_diary_search_filters_ranges_and_reset(self):
+        today = timezone.localdate()
+        for index in range(1, 26):
+            HealthEntry.objects.create(
+                owner=self.user,
+                date=today - timedelta(days=index),
+                mood='Хорошее',
+                condition='Нормальное',
+                pain_intensity=index % 11,
+                symptoms='Головная боль',
+            )
+        self.run_browser('diaryList')
+
     def test_medication_mode_count_and_save(self):
         self.run_browser('medication')
         self.medication.refresh_from_db()
