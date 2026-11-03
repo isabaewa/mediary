@@ -15,3 +15,9 @@ __pycache__/
 
 .django_secret_key
 LOCAL_ACCOUNT.txt
+
+# Кэши инструментов и артефакты браузерных проверок.
+.ruff_cache/
+test-results/
+playwright-report/
+node_modules/

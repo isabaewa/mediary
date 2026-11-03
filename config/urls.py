@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('diary.urls')),  # Перенаправляем все остальные запросы в наше приложение
+    path('', include('diary.urls')),  # Передаём оставшиеся пути маршрутизатору приложения.
 ]

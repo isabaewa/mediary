@@ -1,0 +1,12 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+# Проверяем исходники проекта, а не локальные материалы и виртуальное окружение.
+include = ["manage.py", "config/**/*.py", "diary/**/*.py", "browser_tests/**/*.py", "scripts/**/*.py"]
+extend-exclude = ["diary/migrations"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "single"

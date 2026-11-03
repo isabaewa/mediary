@@ -1,0 +1,53 @@
+{# Контракт: HealthEntryForm; кнопки синхронизируются с полями в health-entry.js. #}
+{# Поля дневника; доступность без JavaScript сохраняется обычными полями Django. #}
+<div class="mb-3">
+    <label class="form-label" for="id_date">Дата записи</label>
+    {{ form.date }}
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="id_mood">Ваше настроение сегодня</label>
+    <div class="native-choice">{{ form.mood }}</div>
+    <div class="choice-buttons" role="group" aria-label="Настроение" hidden>
+        <button type="button" class="mood-btn m-v1" data-val="Очень плохое">😢 Очень плохое</button>
+        <button type="button" class="mood-btn m-v2" data-val="Плохое">🙁 Плохое</button>
+        <button type="button" class="mood-btn m-v3" data-val="Нормальное">😐 Нормальное</button>
+        <button type="button" class="mood-btn m-v4" data-val="Хорошее">🙂 Хорошее</button>
+        <button type="button" class="mood-btn m-v5" data-val="Отличное">😁 Отличное</button>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="id_condition">Физическое самочувствие</label>
+    <div class="native-choice">{{ form.condition }}</div>
+    <div class="choice-buttons" role="group" aria-label="Самочувствие" hidden>
+        <button type="button" class="cond-btn c-v1 condition-choice" data-val="Плохое">Плохое</button>
+        <button type="button" class="cond-btn c-v2 condition-choice" data-val="Нормальное">Нормальное</button>
+        <button type="button" class="cond-btn c-v3 condition-choice" data-val="Отличное">Отличное</button>
+    </div>
+</div>
+
+<p id="condition-support" class="support-note" aria-live="polite" hidden></p>
+<fieldset class="mb-3 pain-question">
+    <legend class="form-label">Есть ли боль?</legend>
+    {{ form.has_pain }}
+</fieldset>
+<div class="mb-3" id="pain-details">
+    <label class="form-label" for="id_pain_intensity">Интенсивность боли: <span id="pain_num" class="pain-number">0</span> / 10</label>
+    <div id="pain-native">{{ form.pain_intensity }}</div>
+    <div class="pain-options" role="group" aria-label="Интенсивность боли от 1 до 10" hidden>
+        {% for i in "123456789" %}
+            <button type="button" class="pain-block p-b" data-val="{{ i }}">{{ i }}</button>
+        {% endfor %}
+        <button type="button" class="pain-block p-b" data-val="10">10</button>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="id_symptoms">Какие симптомы беспокоят?</label>
+    {{ form.symptoms }}
+</div>
+<div class="mb-3">
+    <label class="form-label" for="id_note">Дополнительная заметка</label>
+    {{ form.note }}
+</div>

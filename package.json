@@ -1,0 +1,11 @@
+{
+  "name": "mediary-browser-tests",
+  "private": true,
+  "description": "Development dependencies for isolated Django browser tests",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

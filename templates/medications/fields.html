@@ -1,0 +1,54 @@
+{# Контракт: MedicationForm с time_fields; поведение — medication-form.js. #}
+<div class="mb-3">
+    <label class="form-label" for="id_name">Название препарата</label>
+    {{ form.name }}
+</div>
+<fieldset class="intake-mode"><legend class="form-label">Как принимаете?</legend>{{ form.intake_mode }}</fieldset>
+<div class="form-grid">
+    <div class="mb-3">
+        <label class="form-label" for="id_dosage">Дозировка</label>
+        {{ form.dosage }}
+    </div>
+    <div class="mb-3" id="daily-count-field">
+        <label class="form-label" for="id_daily_doses">Приёмов в день</label>
+        <div class="dose-counter">
+            <button type="button" class="dose-step" data-step="-1" aria-label="Уменьшить количество приёмов" hidden>−</button>
+            {{ form.daily_doses }}
+            <button type="button" class="dose-step" data-step="1" aria-label="Увеличить количество приёмов" hidden>+</button>
+        </div>
+    </div>
+    <div class="mb-3 regular-only">
+        <label class="form-label" for="id_start_date">Начало курса</label>
+        {{ form.start_date }}
+    </div>
+    <div class="mb-3 regular-only">
+        <label class="form-label" for="id_end_date">Окончание курса</label>
+        {{ form.end_date }}
+    </div>
+</div>
+<details class="form-details" id="schedule-details" data-new="{% if not form.instance.pk %}true{% else %}false{% endif %}" {% if form.has_scheduled_times %}open{% endif %}>
+    <summary>Время приёмов <span class="detail-optional">необязательно</span></summary>
+    <div id="dose-times" class="form-grid">
+        {% for field in form.time_fields %}
+        <div class="dose-slot" data-slot="{{ forloop.counter }}">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div class="time-control">{{ field }}
+                <button type="button" class="time-remove" aria-label="Очистить время: {{ field.label }}" title="Очистить время" hidden>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6"/></svg>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</details>
+<details class="form-details" {% if form.purpose.value or form.frequency.value or form.purpose.errors or form.frequency.errors %}open{% endif %}>
+    <summary>Дополнительно <span class="detail-optional">необязательно</span></summary>
+    <div class="mb-3">
+        <label class="form-label" for="id_purpose">Назначение</label>
+        {{ form.purpose }}
+    </div>
+    <div class="mb-3 regular-only">
+        <label class="form-label" for="id_frequency">Примечание к приёму</label>
+        {{ form.frequency }}
+    </div>
+</details>

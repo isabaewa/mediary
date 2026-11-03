@@ -5,7 +5,7 @@
 {% endblock %}
 {% block content %}
 <div class="row">
-    <!-- Левая колонка -->
+    {# Сводка дневника и переходы к формам. #}
     <div class="col-md-5">
         <div class="card">
             <h2 class="fw-bold welcome-title">Привет! 👋</h2>
@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <!-- Правая колонка: Чек-лист -->
+    {# Плановые приёмы: каждая форма соответствует одной записи MedicationIntake. #}
     <div class="col-md-7">
         <div class="card">
             <h3 class="fw-bold intakes-title">
@@ -97,90 +97,29 @@
                     <small class="text-muted empty-intakes-hint">Добавьте активный курс во вкладке «Препараты».</small>
                 </div>
             {% endif %}
+            {# Дополнительные приёмы показаны отдельно от ежедневной цели. #}
             <section class="extra-intakes">
                 <a href="{% url 'quick_intake' %}" class="btn btn-primary quick-open"><span class="quick-plus" aria-hidden="true">＋</span> Отметить приём</a>
                 {% if as_needed_intakes %}<h3 class="extra-intakes-title">Дополнительно сегодня</h3>
                 {% for intake in as_needed_intakes %}<div class="list-group-item"><div><strong>{{ intake.medication.name }}</strong><div class="text-muted text-small">{{ intake.medication.dosage }} · принято в {{ intake.taken_at|time:"H:i" }}</div>{% if intake.reason %}<div class="text-muted intake-description">{{ intake.reason }}</div>{% endif %}</div><span aria-label="Принято" class="text-success">✓</span></div>{% endfor %}{% endif %}
             </section>
-            <dialog id="quick-dialog" class="quick-dialog"><div class="quick-panel"><div class="quick-heading"><h2>Отметить приём</h2><button type="button" class="quick-close" aria-label="Закрыть">×</button></div>{% include 'quick_intake_fields.html' %}</div></dialog>
+            <dialog id="quick-dialog" class="quick-dialog" aria-labelledby="quick-dialog-title">
+                <div class="quick-panel">
+                    <div class="quick-heading">
+                        <h2 id="quick-dialog-title">Отметить приём</h2>
+                        <button type="button" class="quick-close" aria-label="Закрыть">×</button>
+                    </div>
+                    {% include 'quick_intake_fields.html' %}
+                </div>
+            </dialog>
 
         </div>
     </div>
 </div>
-<script>
-function updatePendingState(button, state) {
-    const overdue = Boolean(button.dataset.scheduledAt) && Date.parse(button.dataset.scheduledAt) < Date.now();
-    state.classList.toggle('intake-missed', overdue);
-    state.textContent = overdue ? 'Пропущено' : 'Ожидает отметки';
-}
-setInterval(() => document.querySelectorAll('.intake-toggle .pill-button').forEach(button => {
-    const state = button.closest('.list-group-item').querySelector('.intake-state');
-    if (button.getAttribute('aria-pressed') !== 'true' && !button.disabled && !state.classList.contains('intake-error')) updatePendingState(button, state);
-}), 15000);
-function updateDayProgress() {
-    const buttons = [...document.querySelectorAll('.intake-toggle .pill-button')];
-    const bar = document.getElementById('day-progress-bar');
-    if (!bar) return;
-    const done = buttons.filter(button => button.getAttribute('aria-pressed') === 'true').length;
-    const complete = buttons.length > 0 && done === buttons.length;
-    bar.closest('.day-progress').classList.toggle('is-complete', complete);
-    document.getElementById('day-complete').classList.toggle('is-hidden', !complete);
-    bar.max = buttons.length || 1;
-    bar.value = done;
-    bar.textContent = `${buttons.length ? Math.round(done / buttons.length * 100) : 0}%`;
-    document.getElementById('day-progress-text').textContent = `Принято ${done} из ${buttons.length}`;
-}
-// Без JavaScript остаётся обычная форма с POST и CSRF-защитой.
-if (window.fetch) document.querySelectorAll('.intake-toggle').forEach(form => {
-    let submitting = false;
-    const button = form.querySelector('button');
-    const state = form.closest('.list-group-item').querySelector('.intake-state');
-    const displayLabel = taken => `${taken ? 'Снять отметку' : 'Отметить приём'} ${button.dataset.name}, приём ${button.dataset.slot}`;
-    form.addEventListener('submit', async event => {
-        event.preventDefault();
-        if (submitting) return;
-        submitting = true;
-        button.disabled = true;
-        const animationStarted = performance.now();
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        button.classList.add('is-busy');
-        button.setAttribute('aria-busy', 'true');
-        const data = new FormData(form);
-        data.set('taken', String(button.getAttribute('aria-pressed') !== 'true'));
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        try {
-            const response = await fetch(form.action, {method: 'POST', body: data,
-                headers: {'Accept': 'application/json'}, signal: controller.signal});
-            if (!response.ok) throw new Error('Save failed');
-            const result = await response.json();
-            if (typeof result.taken !== 'boolean') throw new Error('Invalid response');
-            if (!reducedMotion) await new Promise(resolve => setTimeout(resolve, Math.max(0, 600 - (performance.now() - animationStarted))));
-            button.classList.remove('is-busy');
-            button.classList.toggle('taken', result.taken);
-            button.setAttribute('aria-pressed', String(result.taken));
-            updateDayProgress();
-            button.setAttribute('aria-label', displayLabel(result.taken));
-            button.classList.add('is-changing');
-            setTimeout(() => button.classList.remove('is-changing'), 520);
-            state.classList.remove('intake-error');
-            state.classList.toggle('intake-done', result.taken);
-            state.classList.remove('intake-missed');
-            if (result.taken) state.textContent = result.taken_at ? `✓ Принято в ${result.taken_at}` : '✓ Принято · время не записано';
-            else updatePendingState(button, state);
-            if (!reducedMotion) await new Promise(resolve => setTimeout(resolve, 500));
-        } catch (error) {
-            state.classList.add('intake-error');
-            state.textContent = 'Не удалось сохранить. Повторите.';
-        } finally {
-            clearTimeout(timeout);
-            button.disabled = false;
-            button.classList.remove('is-busy');
-            button.removeAttribute('aria-busy');
-            submitting = false;
-        }
-    });
-});
-</script>
-{% include 'quick_intake_script.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="{% static 'js/quick-intake.js' %}" defer></script>
 {% endblock %}

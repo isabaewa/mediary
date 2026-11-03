@@ -45,19 +45,8 @@
 
     <footer class="footer"><div class="container"><p class="footer-note">Mediary — дневник самочувствия и приёма лекарств.<br>Помогает вести записи и не заменяет консультацию врача.</p></div></footer>
 
-<script>
-const brandLink = document.querySelector('.brand-wrapper');
-brandLink.addEventListener('click', event => {
-    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
-    // На главной повторяем пульс без ненужной перезагрузки.
-    if (brandLink.href === window.location.href) {
-        event.preventDefault();
-        const heart = brandLink.querySelector('.brand-logo');
-        heart.classList.add('is-restarting');
-        void heart.offsetWidth;
-        heart.classList.remove('is-restarting');
-    }
-});
-</script>
+{# defer запускает код после разбора HTML, не блокируя загрузку страницы. #}
+<script src="{% static 'js/base.js' %}" defer></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

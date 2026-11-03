@@ -1,1 +1,12 @@
-{% extends 'base.html' %}{% block content %}<div class="card quick-form-card"><h2 class="quick-form-title">Отметить приём</h2>{% include 'quick_intake_fields.html' %}<a href="{% url 'dashboard' %}" class="cancel-link">Отмена</a></div>{% include 'quick_intake_script.html' %}{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="card quick-form-card">
+    <h2 class="quick-form-title">Отметить приём</h2>
+    {% include 'quick_intake_fields.html' %}
+    <a href="{% url 'dashboard' %}" class="cancel-link">Отмена</a>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/quick-intake.js' %}" defer></script>
+{% endblock %}
