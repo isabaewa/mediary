@@ -10,6 +10,15 @@ from .base import BrowserCase
 
 
 class ComponentTests(BrowserCase):
+    def test_profile_can_be_opened_and_edited_without_losing_session(self):
+        self.run_browser('profile')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, 'updated_browser_user')
+        self.assertEqual(self.user.first_name, 'Анна')
+        self.assertEqual(self.user.last_name, 'Тестовая')
+        self.assertEqual(self.user.email, 'profile@example.test')
+        self.assertFalse(self.user.is_staff)
+
     def test_medication_search_filters_sort_and_pagination(self):
         for index in range(25):
             Medication.objects.create(

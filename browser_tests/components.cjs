@@ -16,6 +16,57 @@ async function waitForProgress(page, value) {
 }
 
 const scenarios = {
+    async profile(page) {
+        await page.goto(root + '/');
+        assert.equal(await page.locator('.navbar .account-profile-link').count(), 1);
+        assert.equal(await page.locator('.main-content .account-profile-link').count(), 0);
+        const profileMenu = page.locator('.account-menu > summary');
+        await profileMenu.click();
+        assert.equal(await page.getByRole('button', {name: 'Выйти', exact: true}).isVisible(), true);
+        await Promise.all([
+            page.waitForURL(root + '/accounts/profile/'),
+            page.locator('.account-profile-link').click(),
+        ]);
+        assert.equal(await page.locator('#profile-medication-count').innerText(), '1');
+        assert.equal(await page.locator('#profile-active-count').innerText(), '1');
+        assert.equal(await page.locator('#profile-entry-count').innerText(), '1');
+        assert.equal(await page.locator('#profile-taken-count').innerText(), '1');
+        const form = page.locator('#profile-form');
+        await form.locator('[name="first_name"]').fill('Анна');
+        await form.locator('[name="last_name"]').fill('Тестовая');
+        await form.locator('[name="email"]').fill('not-an-email');
+        await Promise.all([page.waitForEvent('load'), form.locator('[type="submit"]').click()]);
+        assert.equal(await page.locator('[role="alert"]').count(), 1);
+        assert.equal(await page.locator('#profile-name').innerText(), 'Настройки аккаунта');
+        await form.locator('[name="email"]').fill('profile@example.test');
+        await form.locator('[name="username"]').fill('updated_browser_user');
+        await Promise.all([page.waitForEvent('load'), form.locator('[type="submit"]').click()]);
+        assert.equal(await page.locator('#profile-name').innerText(), 'Анна Тестовая');
+        assert.equal(await form.locator('[name="username"]').inputValue(), 'updated_browser_user');
+        assert.match(await page.locator('.toast-msg').innerText(), /Данные профиля сохранены/);
+        await Promise.all([
+            page.waitForURL(root + '/accounts/password/change/'),
+            page.getByRole('link', {name: 'Сменить пароль', exact: true}).click(),
+        ]);
+        await Promise.all([
+            page.waitForURL(root + '/accounts/profile/'),
+            page.getByRole('link', {name: '← Вернуться в личный кабинет'}).click(),
+        ]);
+        assert.equal(await form.locator('[name="email"]').inputValue(), 'profile@example.test');
+        assert.equal(await page.locator('.navbar .account-profile-link').getAttribute('aria-current'), 'page');
+        const originalViewport = page.viewportSize();
+        for (const width of [1280, 960, 768, 390, 320]) {
+            await page.setViewportSize({width, height: 900});
+            assert.equal(await profileMenu.isVisible(), true);
+            await profileMenu.click();
+            const panel = await page.locator('.account-panel').boundingBox();
+            assert.ok(panel && panel.x >= 0 && panel.x + panel.width <= width);
+            await profileMenu.press('Escape');
+            assert.equal(await page.locator('.account-panel').isVisible(), false);
+            assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+        }
+        await page.setViewportSize(originalViewport);
+    },
     async medicationList(page) {
         await page.goto(root + '/medications/');
         const form = page.locator('form[role="search"]');

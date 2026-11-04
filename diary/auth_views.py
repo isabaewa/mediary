@@ -1,12 +1,49 @@
-"""Вход, регистрация, выход и срок сессии средствами Django Authentication."""
+"""Личный кабинет, вход, регистрация и управление сессией Django Authentication."""
 
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView, PasswordChangeView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect, render
-from django.views.decorators.http import require_POST
+from django.urls import reverse_lazy
+from django.views.decorators.http import require_http_methods, require_POST
 
-from .forms import SignInForm, SignUpForm
+from .forms import ProfileForm, SignInForm, SignUpForm
+from .selectors import account_summary_for
+
+
+@login_required
+@require_http_methods(['GET', 'HEAD', 'POST'])
+def profile_view(request):
+    """Кабинет без id в URL: форма всегда привязана к request.user."""
+    form = ProfileForm(
+        request.POST if request.method == 'POST' else None,
+        instance=request.user,
+    )
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Данные профиля сохранены.')
+            return redirect('profile')
+        # ModelForm меняет instance при проверке; шапка должна показывать сохранённые данные.
+        request.user.refresh_from_db()
+    return render(
+        request,
+        'account/profile.html',
+        {
+            'form': form,
+            'summary': account_summary_for(request.user),
+        },
+    )
+
+
+class ProfilePasswordChangeView(SuccessMessageMixin, PasswordChangeView):
+    """Стандартная смена пароля Django сохраняет текущую сессию."""
+
+    template_name = 'registration/password_change.html'
+    success_url = reverse_lazy('profile')
+    success_message = 'Пароль изменён.'
 
 
 class SignInView(LoginView):

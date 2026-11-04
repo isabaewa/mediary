@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+{% block content %}
+<header class="profile-heading">
+    <h1>Личный кабинет</h1>
+    <p><span id="profile-name">{{ user.get_full_name|default:'Настройки аккаунта' }}</span><span aria-hidden="true"> · </span>В Mediary с {{ user.date_joined|date:"d.m.Y" }}</p>
+</header>
+
+<div class="profile-layout">
+    <section class="card profile-editor" aria-labelledby="profile-form-title">
+        <header class="profile-section-heading">
+            <h2 id="profile-form-title">Данные профиля</h2>
+            <p>Обязателен только логин.</p>
+        </header>
+        {# Пароль и права доступа не входят в форму редактирования профиля. #}
+        <form method="post" id="profile-form" novalidate>
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="profile-errors" role="alert">Проверьте данные профиля.{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="profile-fields">
+                {% for field in form %}
+                <div class="profile-field profile-field--{{ field.name }}">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<p class="profile-help" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+                    {{ field.errors }}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="profile-actions">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <a class="profile-cancel" href="{% url 'profile' %}">Отмена</a>
+            </div>
+        </form>
+        <div class="profile-security">
+            <div>
+                <h3>Пароль</h3>
+            </div>
+            <a class="btn btn-light" href="{% url 'password_change' %}">Сменить пароль</a>
+        </div>
+    </section>
+
+    <aside class="card profile-summary" aria-labelledby="profile-summary-title">
+        <h2 id="profile-summary-title">Мои записи</h2>
+        <div class="profile-stats">
+            <a class="profile-stat" href="{% url 'medication_list' %}?section=all">
+                <strong id="profile-medication-count">{{ summary.medication_count }}</strong>
+                <span>Препаратов</span>
+            </a>
+            <a class="profile-stat" href="{% url 'medication_list' %}?section=courses&amp;status=active">
+                <strong id="profile-active-count">{{ summary.active_course_count }}</strong>
+                <span>Активных курсов</span>
+            </a>
+            <a class="profile-stat" href="{% url 'diary_list' %}">
+                <strong id="profile-entry-count">{{ summary.entry_count }}</strong>
+                <span>Записей самочувствия</span>
+            </a>
+            <a class="profile-stat" href="{% url 'history' %}">
+                <strong id="profile-taken-count">{{ summary.taken_count }}</strong>
+                <span>Отмеченных приёмов</span>
+            </a>
+        </div>
+        <div class="profile-recent">
+            <p>{% if summary.last_entry_date %}Последняя запись: {{ summary.last_entry_date|date:"d.m.Y" }}{% else %}Записей самочувствия пока нет.{% endif %}</p>
+            <a href="{% url 'diary_list' %}">Открыть дневник <span aria-hidden="true">→</span></a>
+        </div>
+    </aside>
+</div>
+{% endblock %}

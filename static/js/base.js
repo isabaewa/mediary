@@ -14,4 +14,18 @@
             heart.classList.remove('is-restarting');
         }
     });
+
+    const accountMenu = document.querySelector('.account-menu');
+    if (!accountMenu) return;
+    const trigger = accountMenu.querySelector('summary');
+
+    // Escape возвращает фокус к кнопке, а клик вне меню сохраняет естественный фокус.
+    accountMenu.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || !accountMenu.open) return;
+        accountMenu.open = false;
+        trigger.focus();
+    });
+    document.addEventListener('click', event => {
+        if (!accountMenu.contains(event.target)) accountMenu.open = false;
+    });
 })();

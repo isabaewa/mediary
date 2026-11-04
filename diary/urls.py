@@ -1,7 +1,6 @@
 """Именованные маршруты: аутентификация, препараты, приёмы и дневник."""
 
-from django.contrib.auth.views import PasswordChangeView
-from django.urls import path, reverse_lazy
+from django.urls import path
 
 from . import auth_views, views
 
@@ -9,15 +8,13 @@ urlpatterns = [
     # Аутентификация использует стандартные механизмы паролей и сессий Django.
     path(
         'accounts/password/change/',
-        PasswordChangeView.as_view(
-            template_name='registration/password_change.html',
-            success_url=reverse_lazy('dashboard'),
-        ),
+        auth_views.ProfilePasswordChangeView.as_view(),
         name='password_change',
     ),
     path('accounts/login/', auth_views.SignInView.as_view(), name='login'),
     path('accounts/signup/', auth_views.signup_view, name='signup'),
     path('accounts/logout/', auth_views.signout_view, name='logout'),
+    path('accounts/profile/', auth_views.profile_view, name='profile'),
     path('medications/section/', views.medication_section_view, name='medication_section'),
     path('intake/add/', views.quick_intake_view, name='quick_intake'),
     # Главная

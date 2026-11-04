@@ -1,10 +1,33 @@
 """Чтение списков: сначала ограничение владельцем, затем поиск и фильтры."""
 
-from django.db.models import F, Q
+from django.db.models import Count, F, Max, Q
 from django.utils import timezone
 
 from .db_functions import UnicodeLower
-from .models import HealthEntry, Medication
+from .models import HealthEntry, Medication, MedicationIntake
+
+
+def account_summary_for(user):
+    """Сводка кабинета: только свои записи, без загрузки истории целиком."""
+    today = timezone.localdate()
+    medications = Medication.objects.filter(owner=user).aggregate(
+        medication_count=Count('pk'),
+        active_course_count=Count(
+            'pk',
+            filter=Q(
+                as_needed=False,
+                start_date__lte=today,
+                end_date__gte=today,
+            ),
+        ),
+    )
+    entries = HealthEntry.objects.filter(owner=user).aggregate(
+        entry_count=Count('pk'),
+        last_entry_date=Max('date'),
+    )
+    taken_count = MedicationIntake.objects.filter(medication__owner=user, taken=True).count()
+    return {**medications, **entries, 'taken_count': taken_count}
+
 
 MEDICATION_ORDERING = {
     'name_asc': ('_name_lower', 'pk'),

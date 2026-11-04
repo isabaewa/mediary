@@ -189,6 +189,6 @@ class AuthenticationTests(TestCase):
                 'new_password2': 'Another-Lab-Password-941!',
             },
         )
-        self.assertRedirects(response, reverse('dashboard'))
+        self.assertRedirects(response, reverse('profile'))
         self.owner.refresh_from_db()
         self.assertTrue(self.owner.check_password('Another-Lab-Password-941!'))

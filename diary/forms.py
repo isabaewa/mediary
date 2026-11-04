@@ -1,6 +1,7 @@
 """Серверная валидация ввода; проверки обязательны независимо от JavaScript."""
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils import timezone
 
@@ -287,3 +288,35 @@ class SignInForm(AuthenticationForm):
     """Стандартная аутентификация с дополнительным выбором срока сессии."""
 
     remember_me = forms.BooleanField(required=False, label='Запомнить меня на 14 дней')
+
+
+class ProfileForm(forms.ModelForm):
+    """Редактируем только разрешённые поля текущего аккаунта, без прав и пароля."""
+
+    class Meta:
+        model = get_user_model()
+        fields = ['first_name', 'last_name', 'username', 'email']
+        labels = {
+            'username': 'Логин',
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'email': 'Электронная почта',
+        }
+        help_texts = {
+            'username': 'Используется для входа в аккаунт.',
+            'first_name': '',
+            'last_name': '',
+            'email': 'Восстановление пароля по почте пока недоступно.',
+        }
+        widgets = {
+            'username': forms.TextInput(
+                attrs={'class': 'form-control', 'autocomplete': 'username'}
+            ),
+            'first_name': forms.TextInput(
+                attrs={'class': 'form-control', 'autocomplete': 'given-name'}
+            ),
+            'last_name': forms.TextInput(
+                attrs={'class': 'form-control', 'autocomplete': 'family-name'}
+            ),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'autocomplete': 'email'}),
+        }
