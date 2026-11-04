@@ -72,12 +72,6 @@
     flex-direction: column;
 }
 
-.quick-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 .remember-choice {
     display: flex;
     gap: 8px;
@@ -123,15 +117,6 @@
 .auth-footer {
     font-size: .9rem;
     margin: 20px 0 0;
-}
-
-.quick-actions-title {
-    font-size: 0.85rem;
-    color: #64748b;
-    margin-top: 0;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .empty-intakes-hint {
@@ -277,12 +262,6 @@
 
 .form-row-centered {
     justify-content: center;
-}
-
-.btn.quick-action {
-    justify-content: flex-start;
-    background: #fff;
-    border: 1px solid #e2e8f0;
 }
 
 .btn.space-bottom-10 {

@@ -27,14 +27,11 @@
                 </div>
                 <a href="{% url 'diary_create' %}" class="btn btn-primary btn-w100">Заполни дневник</a>
             {% endif %}
-        </div>
-        
-        <div class="card card-compact">
-            <h5 class="fw-bold quick-actions-title">Быстрые действия</h5>
-            <div class="quick-actions">
-                <a href="{% url 'medication_create' %}" class="btn btn-light btn-sm quick-action">Добавить новый препарат</a>
-                <a href="{% url 'diary_create' %}" class="btn btn-light btn-sm quick-action">Запись за прошедшие дни</a>
-                <a href="{% url 'history' %}" class="btn btn-light btn-sm quick-action">Посмотреть архив истории</a>
+            <div class="dashboard-diary-action">
+                <a class="dashboard-action" href="{% url 'diary_create' %}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18"/></svg>
+                    Запись за прошлые дни
+                </a>
             </div>
         </div>
     </div>
@@ -42,9 +39,15 @@
     {# Плановые приёмы: каждая форма соответствует одной записи MedicationIntake. #}
     <div class="col-md-7">
         <div class="card">
-            <h3 class="fw-bold intakes-title">
-                Приём лекарств на сегодня <span class="text-muted date-caption">({{ today|date:"d E" }})</span>
-            </h3>
+            <div class="dashboard-intakes-heading">
+                <h3 class="fw-bold intakes-title">
+                    Приём лекарств на сегодня <span class="text-muted date-caption">({{ today|date:"d E" }})</span>
+                </h3>
+                <a class="dashboard-action" href="{% url 'medication_create' %}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                    Добавить препарат
+                </a>
+            </div>
             <p class="text-muted intakes-hint">Нажмите на пилюлю справа, чтобы отметить выполненный приём</p>
             
             {% if today_intakes %}
