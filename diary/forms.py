@@ -6,6 +6,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils import timezone
 
 from .models import HealthEntry, Medication
+from .validators import DIARY_MIN_DATE, validate_diary_date
 
 
 class MedicationForm(forms.ModelForm):
@@ -150,6 +151,10 @@ class HealthEntryForm(forms.ModelForm):
         pain = self.instance.pain_intensity or 0
         self.initial.setdefault('has_pain', 'yes' if pain > 0 else 'no')
         self.initial.setdefault('pain_intensity', pain)
+        self.fields['date'].validators.append(validate_diary_date)
+        self.fields['date'].widget.attrs.update(
+            min=DIARY_MIN_DATE.isoformat(), max=timezone.localdate().isoformat()
+        )
 
     class Meta:
         model = HealthEntry

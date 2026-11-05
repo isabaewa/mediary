@@ -3,6 +3,7 @@
 from django import forms
 
 from .models import HealthEntry
+from .validators import DIARY_MIN_DATE, validate_diary_date
 
 MEDICATION_SECTIONS = [('all', 'Все'), ('courses', 'Курсы'), ('occasional', 'Без курса')]
 MEDICATION_SORTS = [
@@ -76,13 +77,19 @@ class HealthEntryFilterForm(ListFilterForm):
         label='С даты',
         required=False,
         input_formats=['%Y-%m-%d'],
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
+        validators=[validate_diary_date],
+        widget=forms.DateInput(
+            format='%Y-%m-%d', attrs={'type': 'date', 'min': DIARY_MIN_DATE.isoformat()}
+        ),
     )
     date_to = forms.DateField(
         label='По дату',
         required=False,
         input_formats=['%Y-%m-%d'],
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
+        validators=[validate_diary_date],
+        widget=forms.DateInput(
+            format='%Y-%m-%d', attrs={'type': 'date', 'min': DIARY_MIN_DATE.isoformat()}
+        ),
     )
     condition = forms.ChoiceField(
         label='Самочувствие',
