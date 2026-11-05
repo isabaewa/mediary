@@ -60,7 +60,9 @@ def search_text(queryset, text, fields):
 def medications_for(user, filters):
     """filters — только cleaned_data успешно проверенной MedicationFilterForm."""
     records = Medication.objects.filter(owner=user).alias(_name_lower=UnicodeLower('name'))
+    # Для поиска достаточно совпадения в одном из полей препарата.
     records = search_text(records, filters['q'], ['name', 'dosage', 'purpose', 'frequency'])
+    # Тип препарата и состояние курса ограничивают одну и ту же выборку.
     section = filters['section']
     if section != 'all':
         records = records.filter(as_needed=section == 'occasional')
@@ -82,6 +84,7 @@ def health_entries_for(user, filters):
     """filters — cleaned_data HealthEntryFilterForm; границы диапазонов включительны."""
     records = HealthEntry.objects.filter(owner=user)
     records = search_text(records, filters['q'], ['symptoms', 'note'])
+    # Каждый заполненный фильтр добавляет условие к результатам поиска.
     lookups = {
         'date_from': 'date__gte',
         'date_to': 'date__lte',

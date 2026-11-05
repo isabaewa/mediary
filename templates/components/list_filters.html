@@ -1,22 +1,47 @@
 {# GET делает выборку воспроизводимой по URL; новая отправка начинает с первой страницы. #}
-<form method="get" class="list-filters card" role="search" aria-label="Поиск и фильтры">
+<form method="get" class="list-filters" role="search" aria-label="Поиск и фильтры">
     {% if filter_form.errors %}
     <div class="filter-error-summary" role="alert">Проверьте параметры поиска и фильтрации.</div>
     {% endif %}
     {% for field in filter_form.hidden_fields %}{{ field }}{{ field.errors }}{% endfor %}
-    <div class="filter-grid">
-        {% for field in filter_form.visible_fields %}
-        <div class="filter-field filter-field--{{ field.name }}">
-            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}<p id="{{ field.auto_id }}_helptext" class="filter-help">{{ field.help_text }}</p>{% endif %}
-            {{ field.errors }}
+    <div class="list-search-row">
+        <div class="list-search-input">
+            <label class="list-search-label" for="{{ filter_form.q.id_for_label }}">Поиск по дневнику</label>
+            <div class="list-search-control">
+                {{ filter_form.q }}
+                <button type="submit" class="btn btn-light">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4"/></svg>
+                    Найти
+                </button>
+            </div>
+            {{ filter_form.q.errors }}
         </div>
-        {% endfor %}
-    </div>
-    <div class="filter-actions">
-        <button type="submit" class="btn btn-primary">Применить</button>
-        <a class="btn btn-light" href="{{ reset_url }}">Сбросить</a>
+        <details class="list-filter-menu"{% if filter_form.errors %} open{% endif %}>
+            <summary>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
+                Фильтры
+                {% if filters_active %}<span class="list-filter-active" aria-label="Настройки изменены"></span>{% endif %}
+            </summary>
+            <div class="card list-filter-panel diary-filter-panel">
+                <div class="filter-grid">
+                    {% for field in filter_form.visible_fields %}
+                    {% if field.name != 'q' %}
+                    <div class="filter-field filter-field--{{ field.name }}">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}<p id="{{ field.auto_id }}_helptext" class="filter-help">{{ field.help_text }}</p>{% endif %}
+                        {{ field.errors }}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Применить</button>
+                    <a class="btn btn-light" href="{{ reset_url }}">Сбросить</a>
+                    <button type="submit" name="reset_dates" value="1" class="filter-period-clear" formnovalidate>Сбросить даты</button>
+                </div>
+            </div>
+        </details>
     </div>
 </form>
 {% if not filter_form.errors %}

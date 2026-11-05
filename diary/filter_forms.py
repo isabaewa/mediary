@@ -37,22 +37,37 @@ class ListFilterForm(forms.Form):
 
 
 class MedicationFilterForm(ListFilterForm):
+    SCOPES = {
+        'all': ('Все препараты', 'all', ''),
+        'courses': ('Все курсы', 'courses', ''),
+        'active': ('Активные курсы', 'courses', 'active'),
+        'upcoming': ('Будущие курсы', 'courses', 'upcoming'),
+        'finished': ('Завершённые курсы', 'courses', 'finished'),
+        'occasional': ('Без курса', 'occasional', ''),
+    }
+    scope = forms.ChoiceField(
+        label='Препараты',
+        required=False,
+        choices=[(key, label) for key, (label, _, _) in SCOPES.items()],
+    )
     section = forms.ChoiceField(choices=MEDICATION_SECTIONS, widget=forms.HiddenInput)
     status = forms.ChoiceField(
-        label='Статус курса',
         required=False,
-        choices=[
-            ('', 'Любой статус'),
-            ('active', 'Активный'),
-            ('upcoming', 'Ещё не начался'),
-            ('finished', 'Завершён'),
-        ],
-        help_text='Статус относится к препаратам с регулярным курсом.',
+        choices=[('', 'Любой статус'), ('active', 'Активный'),
+                 ('upcoming', 'Ещё не начался'), ('finished', 'Завершён')],
+        widget=forms.HiddenInput,
     )
     sort = forms.ChoiceField(label='Сортировка', choices=MEDICATION_SORTS)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, data):
+        data = data.copy()
+        # Старые URL и сохранённый раздел продолжают открывать прежнюю выборку.
+        scope = data.get('scope')
+        if scope in self.SCOPES:
+            _, data['section'], data['status'] = self.SCOPES[scope]
+        elif not scope:
+            data['scope'] = data.get('status') or data.get('section', 'all')
+        super().__init__(data)
         self.fields['q'].widget.attrs['placeholder'] = 'Название, дозировка, назначение'
 
 

@@ -71,8 +71,9 @@ const scenarios = {
         await page.goto(root + '/medications/');
         const form = page.locator('form[role="search"]');
         await form.locator('[name="q"]').fill('запас');
+        await form.locator('summary').click();
         await form.locator('[name="sort"]').selectOption('name_desc');
-        await Promise.all([page.waitForEvent('load'), form.locator('[type="submit"]').click()]);
+        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
         assert.equal(await page.locator('.medication-card').count(), 20);
         assert.equal(await page.locator('.medication-card h4').first().innerText(), 'Запас 24');
         assert.equal(new URL(page.url()).searchParams.get('q'), 'запас');
@@ -82,17 +83,18 @@ const scenarios = {
         assert.equal(params.get('page'), '2');
         assert.equal(params.get('q'), 'запас');
         assert.equal(params.get('sort'), 'name_desc');
-        await Promise.all([
-            page.waitForEvent('load'),
-            page.locator('.medication-sections [value="occasional"]').click(),
-        ]);
-        assert.equal(new URL(page.url()).searchParams.get('section'), 'occasional');
+        await form.locator('summary').click();
+        await form.locator('[name="scope"]').selectOption('occasional');
+        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
+        assert.equal(new URL(page.url()).searchParams.get('scope'), 'occasional');
         assert.equal(new URL(page.url()).searchParams.has('page'), false);
         assert.equal(await page.locator('.medication-card').count(), 20);
-        await form.locator('[name="status"]').selectOption('active');
-        await Promise.all([page.waitForEvent('load'), form.locator('[type="submit"]').click()]);
+        await form.locator('summary').click();
+        await form.locator('[name="scope"]').selectOption('active');
+        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
         assert.equal(await page.locator('.medication-card').count(), 0);
         assert.match(await page.locator('.list-empty').innerText(), /По заданным условиям/);
+        await form.locator('summary').click();
         await Promise.all([page.waitForEvent('load'), form.getByText('Сбросить', {exact: true}).click()]);
         assert.equal(await form.locator('[name="q"]').inputValue(), '');
         assert.equal(await page.locator('.medication-card').count(), 20);
@@ -103,11 +105,13 @@ const scenarios = {
         await page.goto(root + '/diary/');
         const form = page.locator('form[role="search"]');
         await form.locator('[name="q"]').fill('ГОЛОВНАЯ');
+        await form.locator('summary').click();
         await form.locator('[name="sort"]').selectOption('date_asc');
-        await Promise.all([page.waitForEvent('load'), form.locator('[type="submit"]').click()]);
+        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
         await Promise.all([page.waitForEvent('load'), page.locator('a[rel="next"]').click()]);
         assert.equal(new URL(page.url()).searchParams.get('q'), 'ГОЛОВНАЯ');
         assert.equal(await page.locator('tbody tr').count(), 5);
+        await form.locator('summary').click();
         await form.locator('[name="date_from"]').fill(config.MEDIARY_TEST_DATE_FROM);
         await form.locator('[name="date_to"]').fill(config.MEDIARY_TEST_DATE_TO);
         await form.locator('[name="condition"]').selectOption('Нормальное');
@@ -115,14 +119,15 @@ const scenarios = {
         await form.locator('[name="pain_min"]').fill('3');
         await form.locator('[name="pain_max"]').fill('7');
         await form.locator('[name="sort"]').selectOption('pain_desc');
-        await Promise.all([page.waitForEvent('load'), form.locator('[type="submit"]').click()]);
+        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
         assert.equal(new URL(page.url()).searchParams.has('page'), false);
         assert.equal(await page.locator('tbody tr').count(), 11);
         assert.match(await page.locator('tbody tr').first().innerText(), /7 \/ 10/);
         assert.equal(await form.locator('[name="pain_min"]').inputValue(), '3');
+        await form.locator('summary').click();
         await form.locator('[name="pain_min"]').fill('8');
         await form.locator('[name="pain_max"]').fill('3');
-        await Promise.all([page.waitForEvent('load'), form.locator('[type="submit"]').click()]);
+        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
         assert.equal(await page.locator('[role="alert"]').count(), 1);
         assert.match(await form.locator('.errorlist').innerText(), /Верхняя граница/);
         await Promise.all([page.waitForEvent('load'), form.getByText('Сбросить', {exact: true}).click()]);

@@ -4,7 +4,19 @@
     {% if page_obj.has_previous %}
     <a class="btn btn-light btn-sm" href="{% querystring page=page_obj.previous_page_number %}" rel="prev">← Назад</a>
     {% else %}<span></span>{% endif %}
-    <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+    <div class="pagination-pages">
+        {% for number in page_numbers %}
+            {% if number == page_obj.paginator.ELLIPSIS %}
+            <span>{{ number }}</span>
+            {% elif number == page_obj.number %}
+            <span class="btn btn-primary btn-sm" aria-current="page" aria-label="Страница {{ number }}">{{ number }}</span>
+            {% else %}
+            <a class="btn btn-light btn-sm" href="{% querystring page=number %}" aria-label="Страница {{ number }}">{{ number }}</a>
+            {% endif %}
+        {% empty %}
+        <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+        {% endfor %}
+    </div>
     {% if page_obj.has_next %}
     <a class="btn btn-light btn-sm" href="{% querystring page=page_obj.next_page_number %}" rel="next">Далее →</a>
     {% else %}<span></span>{% endif %}

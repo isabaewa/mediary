@@ -6,14 +6,48 @@
 {% endblock %}
 {% block content %}
 <div class="section-header"><h2 class="fw-bold page-title-compact">Мои препараты</h2><a href="{% url 'medication_create' %}" class="btn btn-primary btn-sm">Добавить препарат</a></div>
-<form method="post" action="{% url 'medication_section' %}" class="medication-sections" aria-label="Раздел препаратов">
-{% csrf_token %}
-{% for field in filter_form %}{% if field.name != 'section' %}<input type="hidden" name="{{ field.name }}" value="{{ field.value|default_if_none:'' }}">{% endif %}{% endfor %}
-<button name="section" value="all" type="submit" aria-pressed="{% if selected_section == 'all' %}true{% else %}false{% endif %}">Все</button>
-<button name="section" value="courses" type="submit" aria-pressed="{% if selected_section == 'courses' %}true{% else %}false{% endif %}">Курсы</button>
-<button name="section" value="occasional" type="submit" aria-pressed="{% if selected_section == 'occasional' %}true{% else %}false{% endif %}">Без курса</button>
+{# Поиск и настройки отправляются вместе, чтобы сохранять выбранные условия. #}
+<form method="get" class="list-filters medication-list-toolbar" role="search" aria-label="Поиск препаратов">
+    {% if filter_form.errors %}
+    <div class="filter-error-summary" role="alert">Проверьте параметры поиска и фильтрации.</div>
+    {% endif %}
+    {% for field in filter_form.hidden_fields %}{{ field.errors }}{% endfor %}
+    <div class="list-search-row">
+        <div class="list-search-input">
+            <label class="list-search-label" for="{{ filter_form.q.id_for_label }}">Поиск препаратов</label>
+            <div class="list-search-control">
+                {{ filter_form.q }}
+                <button type="submit" class="btn btn-light">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4"/></svg>
+                    Найти
+                </button>
+            </div>
+            {{ filter_form.q.errors }}
+        </div>
+        <details class="list-filter-menu"{% if filter_form.errors %} open{% endif %}>
+            <summary>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
+                Фильтры
+                {% if filter_form.scope.value != 'all' or filter_form.sort.value != 'name_asc' %}<span class="list-filter-active" aria-label="Настройки изменены"></span>{% endif %}
+            </summary>
+            <div class="card list-filter-panel">
+                <label class="form-label" for="{{ filter_form.scope.id_for_label }}">Препараты</label>
+                {{ filter_form.scope }}
+                {{ filter_form.scope.errors }}
+                <label class="form-label" for="{{ filter_form.sort.id_for_label }}">Сортировка</label>
+                {{ filter_form.sort }}
+                {{ filter_form.sort.errors }}
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Применить</button>
+                    <a class="btn btn-light" href="{{ reset_url }}">Сбросить</a>
+                </div>
+            </div>
+        </details>
+    </div>
 </form>
-{% include 'components/list_filters.html' %}
+{% if not filter_form.errors %}
+<p class="list-result-count" role="status">Найдено: {{ page_obj.paginator.count }} из {{ total_records }}</p>
+{% endif %}
 {# Общая сетка сохраняет выбранный порядок и между регулярными и разовыми препаратами. #}
 {% if medications %}
 <div class="medication-grid">{% include 'medications/cards.html' with items=medications %}</div>

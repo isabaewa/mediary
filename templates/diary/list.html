@@ -26,7 +26,14 @@
             <tbody>
                 {% for entry in entries %}
                 <tr>
-                    <td><strong>{{ entry.date|date:"d.m.Y" }}</strong></td>
+                    <td>
+                        <strong>{{ entry.date|date:"d.m.Y" }}</strong>
+                        {% with excerpt=entry.search_excerpt %}
+                        {% if excerpt %}
+                        <div class="diary-search-excerpt">{{ excerpt.label }}: {{ excerpt.before }}<mark>{{ excerpt.match }}</mark>{{ excerpt.after }}</div>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
                     <td>
                         <span class="badge cond-{{ entry.condition }}">
                             {{ entry.condition }}

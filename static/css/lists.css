@@ -1,3 +1,130 @@
+.list-search-row {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.list-search-input {
+    flex: 1 1 200px;
+    min-width: 0;
+}
+
+.list-search-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.list-search-control {
+    display: flex;
+}
+
+.list-search-control .form-control {
+    min-width: 0;
+    height: 44px;
+    margin-top: 0;
+    padding-block: 0;
+    border-radius: 10px 0 0 10px;
+    background: #fff;
+}
+
+.list-search-control .btn,
+.list-filter-menu summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    color: #334155;
+    font-family: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.list-search-control .btn {
+    border-left: 0;
+    border-radius: 0 10px 10px 0;
+}
+
+.list-filter-menu summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.list-filter-menu summary::-webkit-details-marker {
+    display: none;
+}
+
+.list-search-control .btn:hover,
+.list-filter-menu summary:hover,
+.list-filter-menu[open] summary {
+    background: #eaf8f2;
+    color: #047857;
+}
+
+.list-filter-active {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: #047857;
+}
+
+.card.list-filter-panel {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 8px);
+    right: 0;
+    box-sizing: border-box;
+    width: min(100%, 360px);
+    padding: 16px;
+    box-shadow: 0 8px 24px rgb(15 23 42 / 12%);
+}
+
+.list-filter-panel .form-label:first-child {
+    margin-top: 0;
+}
+
+.list-filter-panel .filter-actions {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.list-filter-panel .filter-actions .btn {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: .85rem;
+}
+
+.filter-period-clear {
+    margin-inline-start: auto;
+    min-height: 40px;
+    padding: 8px;
+    border: 0;
+    background: transparent;
+    color: #047857;
+    font: inherit;
+    font-size: .85rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.card.diary-filter-panel {
+    width: min(100%, 720px);
+}
+
 /* Общие элементы списков: GET-фильтры, число результатов и постраничная навигация. */
 .filter-grid {
     display: grid;
@@ -9,7 +136,7 @@
     min-width: 0;
 }
 
-.filter-field--q, .filter-field--sort {
+.filter-field--sort {
     grid-column: span 2;
 }
 
@@ -66,12 +193,17 @@
     font-size: .85rem;
 }
 
+.pagination-pages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
 @media (max-width: 650px) {
     .filter-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .filter-field--status {
-        grid-column: span 2;
     }
     .list-pagination {
         flex-wrap: wrap;

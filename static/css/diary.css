@@ -58,3 +58,19 @@
 .pain-level-10 {
     background: hsl(0 76% 90%);
 }
+
+.diary-search-excerpt {
+    max-width: 28ch;
+    margin-top: 4px;
+    color: #475569;
+    font-size: .8rem;
+    line-height: 1.45;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.diary-search-excerpt mark {
+    background: #eaf8f2;
+    color: #047857;
+    font-weight: 600;
+}

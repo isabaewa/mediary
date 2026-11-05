@@ -192,22 +192,22 @@ def medication_list_view(request):
     records = Medication.objects.filter(owner=request.user)
     total = records.count()
     if form.is_valid():
-        section = form.cleaned_data['section']
         records = medications_for(request.user, form.cleaned_data)
     else:
         # Невалидный URL показывает ошибки, а не расширяет выборку до всех записей.
         records = records.none()
+    # Разбиваем на страницы уже отфильтрованный и отсортированный список.
     page = Paginator(records, 20).get_page(request.GET.get('page'))
     return render(
         request,
         'medications/list.html',
         {
             'medications': page,
+            'page_numbers': page.paginator.get_elided_page_range(page.number, on_each_side=1),
             'page_obj': page,
             'filter_form': form,
             'total_records': total,
             'reset_url': reverse('medication_list') + '?section=all',
-            'selected_section': section,
         },
     )
 
@@ -316,10 +316,36 @@ def medication_delete_view(request, pk):
     return render(request, 'medications/confirm_delete.html', {'medication': medication})
 
 
+def diary_search_excerpt(entry, query):
+    """Вернуть один фрагмент вокруг первого совпадения."""
+    for label, value in (('Симптомы', entry.symptoms), ('Заметка', entry.note)):
+        if not value:
+            continue
+        start = value.lower().find(query.lower())
+        if start < 0:
+            continue
+        end = start + len(query)
+        left = max(0, start - 24)
+        right = min(len(value), end + 24)
+        return {
+            'label': label,
+            'before': ('…' if left else '') + value[left:start],
+            'match': value[start:end],
+            'after': value[end:right] + ('…' if right < len(value) else ''),
+        }
+    return None
+
+
 @login_required
 def diary_list_view(request):
     """Отобразить личный дневник с поиском, диапазонами и сортировкой."""
     params = request.GET.copy()
+    if params.get('reset_dates') == '1':
+        for key in ('reset_dates', 'date_from', 'date_to', 'page'):
+            params.pop(key, None)
+        url = reverse('diary_list')
+        query = params.urlencode()
+        return redirect(f'{url}?{query}' if query else url)
     params.setdefault('sort', 'date_desc')
     form = HealthEntryFilterForm(params)
     records = HealthEntry.objects.filter(owner=request.user)
@@ -328,15 +354,25 @@ def diary_list_view(request):
         health_entries_for(request.user, form.cleaned_data) if form.is_valid() else records.none()
     )
     page = Paginator(records, 20).get_page(request.GET.get('page'))
+    query = form.cleaned_data.get('q') if not form.errors else ''
+    if query:
+        for entry in page:
+            entry.search_excerpt = diary_search_excerpt(entry, query)
     return render(
         request,
         'diary/list.html',
         {
             'entries': page,
+            'page_numbers': page.paginator.get_elided_page_range(page.number, on_each_side=1),
             'page_obj': page,
             'filter_form': form,
             'total_records': total,
             'reset_url': reverse('diary_list'),
+            'filters_active': params['sort'] != 'date_desc' or any(
+                params.get(key) for key in (
+                    'date_from', 'date_to', 'condition', 'mood', 'pain_min', 'pain_max'
+                )
+            ),
         },
     )
 
