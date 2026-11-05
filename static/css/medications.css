@@ -71,7 +71,7 @@
 }
 
 .medication-section-title span {
-    color: #64748b;
+    color: var(--muted, #64748b);
     font-size: .85rem;
     font-weight: normal;
     margin-left: 6px;

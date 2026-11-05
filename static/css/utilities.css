@@ -1,59 +1,59 @@
 /* Shared presentation classes used by the templates. */
 .badge.badge-muted {
-    background-color: #64748b;
+    background-color: var(--muted, #64748b);
     font-size: 0.75rem;
 }
 
 .badge.badge-taken {
-    background-color: #ecfdf5;
-    color: #047857;
+    background-color: var(--success-surface, #ecfdf5);
+    color: var(--green-text, #047857);
 }
 
 .badge.badge-pending {
-    background-color: #f1f5f9;
-    color: #64748b;
+    background-color: var(--muted-surface, #f1f5f9);
+    color: var(--muted, #64748b);
 }
 
 .empty-diary-prompt {
-    background-color: #f8fafc;
+    background-color: var(--subtle, #f8fafc);
     padding: 15px;
     border-radius: 10px;
     text-align: center;
     margin-bottom: 15px;
-    border: 1px dashed #e2e8f0;
+    border: 1px dashed var(--line, #e2e8f0);
 }
 
 .badge.badge-missed {
-    background-color: #fffbeb;
-    color: #92400e;
+    background-color: var(--warning-surface, #fffbeb);
+    color: var(--warning-text, #92400e);
 }
 
 .text-success {
-    color: #047857;
+    color: var(--green-text, #047857);
 }
 
 .account-link {
-    color: #047857;
+    color: var(--green-text, #047857);
     text-decoration: none;
 }
 
 .auth-error {
-    color: #991b1b;
+    color: var(--danger-text, #991b1b);
 }
 
 .auth-field-error {
-    color: #991b1b;
+    color: var(--danger-text, #991b1b);
     font-size: .85rem;
 }
 
 .btn.text-error, .text-error {
-    color: #b91c1c;
+    color: var(--danger, #b91c1c);
 }
 
 .btn.button-delete {
-    color: #dc3545;
-    border-color: #fecaca;
-    background: #fff5f5;
+    color: var(--danger-alt, #dc3545);
+    border-color: var(--danger-line, #fecaca);
+    background: var(--danger-soft, #fff5f5);
 }
 
 .back-link {
@@ -87,7 +87,7 @@
 .btn.form-cancel {
     flex: 1;
     padding: 14px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--line, #e2e8f0);
 }
 
 .condition-choice {
@@ -202,7 +202,7 @@
 
 .section-title-green {
     font-size: 1.1rem;
-    color: #059669;
+    color: var(--primary, #059669);
     margin-top: 0;
     margin-bottom: 15px;
 }
@@ -233,7 +233,7 @@
     font-size: 1.4rem;
     margin-top: 0;
     margin-bottom: 25px;
-    color: #1e293b;
+    color: var(--heading, #1e293b);
 }
 
 .list-title {
@@ -253,7 +253,7 @@
 
 .pain-number {
     font-weight: 700;
-    color: #059669;
+    color: var(--primary, #059669);
 }
 
 .font-normal {

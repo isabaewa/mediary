@@ -29,7 +29,7 @@
     margin-top: 0;
     padding-block: 0;
     border-radius: 10px 0 0 10px;
-    background: #fff;
+    background: var(--surface, #fff);
 }
 
 .list-search-control .btn,
@@ -41,10 +41,10 @@
     box-sizing: border-box;
     min-height: 44px;
     padding: 8px 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--line, #e2e8f0);
     border-radius: 10px;
-    background: #fff;
-    color: #334155;
+    background: var(--surface, #fff);
+    color: var(--text, #334155);
     font-family: inherit;
     font-size: .9rem;
     font-weight: 600;
@@ -68,8 +68,8 @@
 .list-search-control .btn:hover,
 .list-filter-menu summary:hover,
 .list-filter-menu[open] summary {
-    background: #eaf8f2;
-    color: #047857;
+    background: var(--green-surface, #eaf8f2);
+    color: var(--green-text, #047857);
 }
 
 .list-filter-active {
@@ -78,7 +78,7 @@
     height: 7px;
     margin-left: 6px;
     border-radius: 50%;
-    background: #047857;
+    background: var(--green-text, #047857);
 }
 
 .card.list-filter-panel {
@@ -99,7 +99,7 @@
 .list-filter-panel .filter-actions {
     margin-top: 16px;
     padding-top: 12px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--line, #e2e8f0);
 }
 
 .list-filter-panel .filter-actions .btn {
@@ -114,7 +114,7 @@
     padding: 8px;
     border: 0;
     background: transparent;
-    color: #047857;
+    color: var(--green-text, #047857);
     font: inherit;
     font-size: .85rem;
     text-decoration: underline;
@@ -146,7 +146,7 @@
 
 .filter-help {
     margin: 6px 0 0;
-    color: #64748b;
+    color: var(--muted, #64748b);
     font-size: .78rem;
     line-height: 1.5;
 }
@@ -159,7 +159,7 @@
 }
 
 .filter-error-summary, .list-filters .errorlist {
-    color: #b91c1c;
+    color: var(--danger, #b91c1c);
     font-size: .85rem;
 }
 
@@ -174,14 +174,14 @@
 
 .list-result-count {
     margin: 16px 0;
-    color: #475569;
+    color: var(--secondary, #475569);
     font-size: .9rem;
 }
 
 .list-empty {
     padding: 24px;
     text-align: center;
-    color: #64748b;
+    color: var(--muted, #64748b);
 }
 
 .list-pagination {

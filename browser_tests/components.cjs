@@ -18,6 +18,12 @@ async function waitForProgress(page, value) {
 const scenarios = {
     async profile(page) {
         await page.goto(root + '/');
+        const themeButton = page.locator('.theme-toggle');
+        await themeButton.click();
+        assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+        await page.reload();
+        assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+        assert.equal(await themeButton.getAttribute('aria-pressed'), 'true');
         assert.equal(await page.locator('.navbar .account-profile-link').count(), 1);
         assert.equal(await page.locator('.main-content .account-profile-link').count(), 0);
         const profileMenu = page.locator('.account-menu > summary');

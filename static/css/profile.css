@@ -4,13 +4,13 @@
 
 .profile-heading h1 {
     margin: 0 0 8px;
-    color: #1e293b;
+    color: var(--heading, #1e293b);
     font-size: 1.6rem;
 }
 
 .profile-heading p {
     margin: 0;
-    color: #64748b;
+    color: var(--muted, #64748b);
     font-size: .85rem;
     line-height: 1.6;
     overflow-wrap: anywhere;
@@ -34,13 +34,13 @@
 
 .profile-section-heading h2, .profile-summary h2 {
     margin: 0 0 6px;
-    color: #1e293b;
+    color: var(--heading, #1e293b);
     font-size: 1.1rem;
 }
 
 .profile-section-heading p {
     margin: 0;
-    color: #64748b;
+    color: var(--muted, #64748b);
     font-size: .85rem;
 }
 
@@ -60,7 +60,7 @@
 
 .profile-help {
     margin: 6px 0 0;
-    color: #64748b;
+    color: var(--muted, #64748b);
     font-size: .78rem;
     line-height: 1.5;
 }
@@ -75,18 +75,18 @@
 
 .profile-cancel {
     padding: 10px 0;
-    color: #64748b;
+    color: var(--muted, #64748b);
     font-size: .9rem;
     text-decoration: none;
 }
 
 .profile-cancel:hover {
-    color: #1e293b;
+    color: var(--heading, #1e293b);
     text-decoration: underline;
 }
 
 .profile-errors, .profile-field .errorlist {
-    color: #b91c1c;
+    color: var(--danger, #b91c1c);
     font-size: .85rem;
 }
 
@@ -107,14 +107,14 @@
     gap: 12px;
     margin-top: 24px;
     padding-top: 20px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--line, #e2e8f0);
 }
 
 .profile-security h3 {
     margin: 0;
     font-size: .95rem;
     font-weight: 600;
-    color: #334155;
+    color: var(--text, #334155);
 }
 
 .profile-security .btn {
@@ -141,28 +141,28 @@
 }
 
 .profile-stat:nth-child(odd) {
-    border-right: 1px solid #e2e8f0;
+    border-right: 1px solid var(--line, #e2e8f0);
 }
 
 .profile-stat:nth-child(-n+2) {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--line, #e2e8f0);
 }
 
 .profile-stat strong {
-    color: #047857;
+    color: var(--green-text, #047857);
     font-size: 1.35rem;
     font-weight: 600;
 }
 
 .profile-stat span {
-    color: #64748b;
+    color: var(--muted, #64748b);
     font-size: .78rem;
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
 
 .profile-stat:hover {
-    background: #f8fafc;
+    background: var(--subtle, #f8fafc);
 }
 
 .profile-stat:focus-visible, .profile-cancel:focus-visible, .profile-recent a:focus-visible {
@@ -173,18 +173,18 @@
 .profile-recent {
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--line, #e2e8f0);
 }
 
 .profile-recent p {
     margin: 0 0 10px;
-    color: #64748b;
+    color: var(--muted, #64748b);
     font-size: .8rem;
     line-height: 1.6;
 }
 
 .profile-recent a {
-    color: #047857;
+    color: var(--green-text, #047857);
     font-size: .85rem;
     font-weight: 600;
     text-decoration: none;
@@ -206,7 +206,7 @@
         border-bottom: 0;
     }
     .profile-stat:not(:last-child) {
-        border-right: 1px solid #e2e8f0;
+        border-right: 1px solid var(--line, #e2e8f0);
     }
 }
 
@@ -221,7 +221,7 @@
         border-right: 0;
     }
     .profile-stat:nth-child(-n+2) {
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line, #e2e8f0);
     }
 }
 

@@ -1,41 +1,34 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/diary.css' %}">
+{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card p-4 bg-white rounded-3 shadow-sm">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h4 fw-bold mb-0">Состояние за {{ entry.date|date:"d E Y" }}</h2>
-                <div class="d-flex gap-2">
-                    <a href="{% url 'diary_update' entry.pk %}" class="btn btn-sm btn-light">Редактировать</a>
-                    <a href="{% url 'diary_delete' entry.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
-                </div>
-            </div>
-            <hr>
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <small class="text-muted d-block">Общее состояние</small>
-                    <span class="fw-bold">{{ entry.condition }}</span>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted d-block">Настроение</small>
-                    <span class="fw-bold">{{ entry.mood }}</span>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted d-block">Интенсивность боли</small>
-                    <span class="badge bg-secondary">{{ entry.pain_intensity }} / 10</span>
-                </div>
-            </div>
-            <div class="mb-4">
-                <h5 class="h6 fw-bold text-muted">Симптомы:</h5>
-                <div class="p-3 bg-light rounded-3">{{ entry.symptoms }}</div>
-            </div>
-            {% if entry.note %}
-            <div class="mb-2">
-                <h5 class="h6 fw-bold text-muted">Заметка:</h5>
-                <p class="mb-0 text-secondary">{{ entry.note }}</p>
-            </div>
-            {% endif %}
+<article class="card diary-detail">
+    <header class="diary-detail-heading">
+        <div>
+            <a class="diary-back" href="{% url 'diary_list' %}">← К дневнику</a>
+            <h1>Состояние за {{ entry.date|date:"d E Y" }}</h1>
         </div>
-    </div>
-</div>
+        <div class="diary-detail-actions">
+            <a href="{% url 'diary_update' entry.pk %}" class="btn btn-sm btn-light">Редактировать</a>
+            <a href="{% url 'diary_delete' entry.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+        </div>
+    </header>
+    <dl class="diary-detail-metrics">
+        <div><dt>Общее состояние</dt><dd>{{ entry.condition }}</dd></div>
+        <div><dt>Настроение</dt><dd>{{ entry.mood }}</dd></div>
+        <div><dt>Интенсивность боли</dt><dd><span class="badge pain-level-{{ entry.pain_intensity }}">{{ entry.pain_intensity }} / 10</span></dd></div>
+    </dl>
+    <section class="diary-detail-text">
+        <h2>Симптомы</h2>
+        <p>{{ entry.symptoms|linebreaksbr }}</p>
+    </section>
+    {% if entry.note %}
+    <section class="diary-detail-text">
+        <h2>Заметка</h2>
+        <p>{{ entry.note|linebreaksbr }}</p>
+    </section>
+    {% endif %}
+</article>
 {% endblock %}

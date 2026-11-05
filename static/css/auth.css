@@ -3,15 +3,15 @@
     box-sizing: border-box;
     margin-top: 6px;
     padding: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--line, #e2e8f0);
     border-radius: 10px;
     font: inherit;
-    background: #f8fafc;
+    background: var(--subtle, #f8fafc);
 }
 
 .auth-help {
     font-size: .78rem;
-    color: #64748b;
+    color: var(--muted, #64748b);
     line-height: 1.5;
     margin-top: 6px;
 }

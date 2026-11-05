@@ -1,22 +1,22 @@
 .cond-Отличное {
-    background: #ecfdf5 !important;
-    color: #047857;
+    background: var(--success-surface, #ecfdf5) !important;
+    color: var(--green-text, #047857);
 }
 
 .cond-Нормальное {
-    background: #f1f5f9 !important;
-    color: #475569;
+    background: var(--muted-surface, #f1f5f9) !important;
+    color: var(--secondary, #475569);
 }
 
 .cond-Плохое {
-    background: #fef2f2 !important;
-    color: #991b1b;
+    background: var(--danger-surface, #fef2f2) !important;
+    color: var(--danger-text, #991b1b);
 }
 
 [class*="pain-level-"] {
-    color: #334155;
+    color: var(--text, #334155);
     padding: 6px 12px;
-    background: #f1f5f9;
+    background: var(--muted-surface, #f1f5f9);
 }
 
 .pain-level-1 {
@@ -62,7 +62,7 @@
 .diary-search-excerpt {
     max-width: 28ch;
     margin-top: 4px;
-    color: #475569;
+    color: var(--secondary, #475569);
     font-size: .8rem;
     line-height: 1.45;
     white-space: normal;
@@ -70,7 +70,79 @@
 }
 
 .diary-search-excerpt mark {
-    background: #eaf8f2;
-    color: #047857;
+    background: var(--green-surface, #eaf8f2);
+    color: var(--green-text, #047857);
     font-weight: 600;
+}
+
+
+.diary-detail-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.diary-detail-heading h1 {
+    margin: 8px 0 0;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    color: var(--heading);
+}
+
+.diary-back {
+    color: var(--muted);
+    font-size: .85rem;
+    text-decoration: none;
+}
+
+.diary-back:hover {
+    color: var(--green-text);
+    text-decoration: underline;
+}
+
+.diary-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.diary-detail-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+    padding: 18px 0;
+    border-block: 1px solid var(--line);
+}
+
+.diary-detail-metrics dt,
+.diary-detail-text h2 {
+    margin: 0 0 6px;
+    color: var(--muted);
+    font-size: .85rem;
+    font-weight: 500;
+}
+
+.diary-detail-metrics dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--heading);
+}
+
+.diary-detail-text + .diary-detail-text {
+    margin-top: 20px;
+}
+
+.diary-detail-text p {
+    margin: 0;
+    line-height: 1.65;
+    color: var(--text);
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+    .diary-detail-metrics {
+        grid-template-columns: 1fr;
+    }
 }

@@ -1,0 +1,123 @@
+/* Палитра общая для всех страниц и компонентов. */
+:root {
+    color-scheme: light;
+    --surface: #fff;
+    --page: #f5f7f6;
+    --subtle: #f7f9f8;
+    --soft: #fafcfb;
+    --muted-surface: #eef3f0;
+    --line: #dfe7e3;
+    --line-strong: #cbd5e1;
+    --heading: #1e293b;
+    --body: #333;
+    --text: #334155;
+    --secondary: #475569;
+    --muted: #64748b;
+    --green-text: #047857;
+    --green-dark: #065f46;
+    --primary: #059669;
+    --green-surface: #eaf8f2;
+    --success-surface: #ecfdf5;
+    --success-soft: #f0fdf7;
+    --green-muted: #36594c;
+    --green-line: #d1e9df;
+    --green-border: #a7d8c3;
+    --danger-text: #991b1b;
+    --danger: #b91c1c;
+    --danger-strong: #dc2626;
+    --danger-alt: #dc3545;
+    --danger-surface: #fef2f2;
+    --danger-soft: #fff5f5;
+    --danger-line: #fecaca;
+    --warning-surface: #fffbeb;
+    --warning-text: #92400e;
+    --warning: #b45309;
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface: #17241f;
+    --page: #101a16;
+    --subtle: #1c2c25;
+    --soft: #1c2c25;
+    --muted-surface: #25362e;
+    --line: #35493e;
+    --line-strong: #4a6053;
+    --heading: #e6eee9;
+    --body: #e6eee9;
+    --text: #d4e1d9;
+    --secondary: #b5c7bb;
+    --muted: #9eb4a6;
+    --green-text: #6ee7b7;
+    --green-dark: #a7f3d0;
+    --primary: #059669;
+    --green-surface: #1b3a2d;
+    --success-surface: #1b3a2d;
+    --success-soft: #1b3a2d;
+    --green-muted: #b0cebd;
+    --green-line: #385d49;
+    --green-border: #4c7f62;
+    --danger-text: #fca5a5;
+    --danger: #f87171;
+    --danger-strong: #f87171;
+    --danger-alt: #f87171;
+    --danger-surface: #3b2426;
+    --danger-soft: #3b2426;
+    --danger-line: #7f3d43;
+    --warning-surface: #382f1d;
+    --warning-text: #fcd38a;
+    --warning: #fcd38a;
+}
+
+.header-tools {
+    grid-column: 3;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+}
+.theme-toggle:hover {
+    background: var(--green-surface);
+    color: var(--green-text);
+}
+.theme-sun { display: none; }
+[data-theme="dark"] .theme-sun { display: block; }
+[data-theme="dark"] .theme-moon { display: none; }
+[data-theme="dark"] .badge[class*="pain-level-"] {
+    background: var(--muted-surface);
+    color: var(--text);
+}
+[data-theme="dark"] .badge:is(.pain-level-1, .pain-level-2, .pain-level-3) {
+    background: #223c2e;
+    color: #b3e3bd;
+}
+[data-theme="dark"] .badge:is(.pain-level-4, .pain-level-5, .pain-level-6) {
+    background: #3b3420;
+    color: #eed58e;
+}
+[data-theme="dark"] .badge:is(.pain-level-7, .pain-level-8, .pain-level-9, .pain-level-10) {
+    background: #43282b;
+    color: #ffb6b6;
+}
+hr {
+    border: 0;
+    border-top: 1px solid var(--line);
+}
+[data-theme="dark"] .btn-danger {
+    background: #b91c1c;
+    color: #fff;
+}
+@media (max-width: 720px) {
+    .header-tools { grid-area: 1 / 2; }
+}

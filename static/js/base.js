@@ -2,18 +2,23 @@
 (() => {
     const brandLink = document.querySelector('.brand-wrapper');
     if (!brandLink) return;
-    brandLink.addEventListener('click', event => {
-        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
-        // На главной повторяем пульс без ненужной перезагрузки.
-        if (brandLink.href === window.location.href) {
-            event.preventDefault();
-            const heart = brandLink.querySelector('.brand-logo');
-            heart.classList.add('is-restarting');
-            // Чтение геометрии фиксирует сброс перед повторным запуском анимации.
-            void heart.offsetWidth;
-            heart.classList.remove('is-restarting');
-        }
-    });
+    // Приветствие запускается при загрузке главной страницы.
+    if (brandLink.hasAttribute('data-animate-brand') &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        brandLink.classList.add('is-introducing');
+        const wave = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        wave.classList.add('brand-intro-wave');
+        wave.setAttribute('viewBox', '0 0 140 24');
+        wave.setAttribute('aria-hidden', 'true');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M2 12h35l7-4 7 8 8-13 8 19 8-14 7 4h56');
+        wave.append(path);
+        brandLink.append(wave);
+        wave.addEventListener('animationend', () => {
+            wave.remove();
+            brandLink.classList.remove('is-introducing');
+        }, {once: true});
+    }
 
     const accountMenu = document.querySelector('.account-menu');
     if (!accountMenu) return;
