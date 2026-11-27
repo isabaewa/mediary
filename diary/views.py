@@ -13,11 +13,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Case, DateField, IntegerField, Q, Value, When
-from django.http import Http404, HttpResponseBadRequest, JsonResponse
+from django.http import Http404, HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_http_methods, require_POST, require_safe
+from django.views.decorators.vary import vary_on_headers
 
 from .filter_forms import HealthEntryFilterForm, MedicationFilterForm
 from .forms import HealthEntryForm, MedicationForm, QuickIntakeForm
@@ -337,6 +339,9 @@ def diary_search_excerpt(entry, query):
 
 
 @login_required
+@never_cache
+@require_safe
+@vary_on_headers('X-Diary-Fragment')
 def diary_list_view(request):
     """Отобразить личный дневник с поиском, диапазонами и сортировкой."""
     params = request.GET.copy()
@@ -358,9 +363,14 @@ def diary_list_view(request):
     if query:
         for entry in page:
             entry.search_excerpt = diary_search_excerpt(entry, query)
+    template = (
+        'diary/list_fragment.html'
+        if request.headers.get('X-Diary-Fragment') == '1'
+        else 'diary/list.html'
+    )
     return render(
         request,
-        'diary/list.html',
+        template,
         {
             'entries': page,
             'page_numbers': page.paginator.get_elided_page_range(page.number, on_each_side=1),
@@ -368,23 +378,27 @@ def diary_list_view(request):
             'filter_form': form,
             'total_records': total,
             'reset_url': reverse('diary_list'),
-            'filters_active': params['sort'] != 'date_desc' or any(
-                params.get(key) for key in (
-                    'date_from', 'date_to', 'condition', 'mood', 'pain_min', 'pain_max'
-                )
+            'filters_active': params['sort'] != 'date_desc'
+            or any(
+                params.get(key)
+                for key in ('date_from', 'date_to', 'condition', 'mood', 'pain_min', 'pain_max')
             ),
         },
     )
 
 
 @login_required
+@never_cache
 def diary_detail_view(request, pk):
     """Показать запись владельца; чужой идентификатор возвращает 404."""
     entry = get_object_or_404(HealthEntry, pk=pk, owner=request.user)
+    if request.method not in ('GET', 'HEAD'):
+        return HttpResponseNotAllowed(['GET', 'HEAD'])
     return render(request, 'diary/detail.html', {'entry': entry})
 
 
 @login_required
+@require_http_methods(['GET', 'HEAD', 'POST'])
 def diary_create_view(request):
     """Создание записи в дневнике"""
     if request.method == 'POST':
@@ -410,6 +424,7 @@ def diary_create_view(request):
 
 
 @login_required
+@require_http_methods(['GET', 'HEAD', 'POST'])
 def diary_update_view(request, pk):
     """Обновить свою запись с проверкой даты и значений через форму."""
     entry = get_object_or_404(HealthEntry, pk=pk, owner=request.user)
@@ -433,6 +448,7 @@ def diary_update_view(request, pk):
 
 
 @login_required
+@require_http_methods(['GET', 'HEAD', 'POST'])
 def diary_delete_view(request, pk):
     """Показать подтверждение; удалить свою запись только после POST."""
     entry = get_object_or_404(HealthEntry, pk=pk, owner=request.user)

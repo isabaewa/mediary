@@ -110,11 +110,23 @@ const scenarios = {
     async diaryList(page) {
         await page.goto(root + '/diary/');
         const form = page.locator('form[role="search"]');
+        await page.evaluate(() => { window.diaryDocument = true; });
+
+        async function updateList(action) {
+            const [response] = await Promise.all([
+                page.waitForResponse(response => response.ok()
+                    && response.request().headers()['x-diary-fragment'] === '1'),
+                action(),
+            ]);
+            assert.equal(response.request().resourceType(), 'fetch');
+            await page.locator('#diary-list[aria-busy]').waitFor({state: 'detached'});
+            assert.equal(await page.evaluate(() => window.diaryDocument), true);
+        }
         await form.locator('[name="q"]').fill('ГОЛОВНАЯ');
         await form.locator('summary').click();
         await form.locator('[name="sort"]').selectOption('date_asc');
-        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
-        await Promise.all([page.waitForEvent('load'), page.locator('a[rel="next"]').click()]);
+        await updateList(() => form.getByRole('button', {name: 'Применить', exact: true}).click());
+        await updateList(() => page.locator('a[rel="next"]').click());
         assert.equal(new URL(page.url()).searchParams.get('q'), 'ГОЛОВНАЯ');
         assert.equal(await page.locator('tbody tr').count(), 5);
         await form.locator('summary').click();
@@ -125,7 +137,7 @@ const scenarios = {
         await form.locator('[name="pain_min"]').fill('3');
         await form.locator('[name="pain_max"]').fill('7');
         await form.locator('[name="sort"]').selectOption('pain_desc');
-        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
+        await updateList(() => form.getByRole('button', {name: 'Применить', exact: true}).click());
         assert.equal(new URL(page.url()).searchParams.has('page'), false);
         assert.equal(await page.locator('tbody tr').count(), 11);
         assert.match(await page.locator('tbody tr').first().innerText(), /7 \/ 10/);
@@ -133,13 +145,17 @@ const scenarios = {
         await form.locator('summary').click();
         await form.locator('[name="pain_min"]').fill('8');
         await form.locator('[name="pain_max"]').fill('3');
-        await Promise.all([page.waitForEvent('load'), form.getByRole('button', {name: 'Применить', exact: true}).click()]);
+        await updateList(() => form.getByRole('button', {name: 'Применить', exact: true}).click());
         assert.equal(await page.locator('[role="alert"]').count(), 1);
         assert.match(await form.locator('.errorlist').innerText(), /Верхняя граница/);
-        await Promise.all([page.waitForEvent('load'), form.getByText('Сбросить', {exact: true}).click()]);
+        await updateList(() => form.getByText('Сбросить', {exact: true}).click());
         assert.equal(await form.locator('[name="q"]').inputValue(), '');
         assert.equal(await form.locator('[name="sort"]').inputValue(), 'date_desc');
         assert.equal(await page.locator('tbody tr').count(), 20);
+        assert.equal(await page.locator('.list-result-count').innerText(), 'Найдено: 26 из 26');
+        await updateList(() => page.goBack());
+        assert.match(await form.locator('.errorlist').innerText(), /Верхняя граница/);
+        await updateList(() => page.goForward());
         assert.equal(await page.locator('.list-result-count').innerText(), 'Найдено: 26 из 26');
     },
     async medication(page) {

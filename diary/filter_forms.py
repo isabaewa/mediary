@@ -54,8 +54,12 @@ class MedicationFilterForm(ListFilterForm):
     section = forms.ChoiceField(choices=MEDICATION_SECTIONS, widget=forms.HiddenInput)
     status = forms.ChoiceField(
         required=False,
-        choices=[('', 'Любой статус'), ('active', 'Активный'),
-                 ('upcoming', 'Ещё не начался'), ('finished', 'Завершён')],
+        choices=[
+            ('', 'Любой статус'),
+            ('active', 'Активный'),
+            ('upcoming', 'Ещё не начался'),
+            ('finished', 'Завершён'),
+        ],
         widget=forms.HiddenInput,
     )
     sort = forms.ChoiceField(label='Сортировка', choices=MEDICATION_SORTS)
