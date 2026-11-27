@@ -21,3 +21,6 @@ LOCAL_ACCOUNT.txt
 test-results/
 playwright-report/
 node_modules/
+
+# Финальная сборка исходников
+dist/

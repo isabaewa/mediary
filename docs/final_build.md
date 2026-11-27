@@ -1,0 +1,39 @@
+# ЛЗ 15 Финальная сборка и запуск
+
+Проект использует Python 3.12, Django и SQLite. Версии Python-зависимостей зафиксированы в requirements.txt. Node.js нужен для браузерных тестов.
+
+## Проверка и сборка
+
+В PowerShell из корня проекта выполнить
+
+```powershell
+.\venv\Scripts\python.exe scripts/check.py --browser --browser-channel msedge
+.\venv\Scripts\python.exe scripts/build_release.py
+```
+
+Проверка включает Ruff, форматирование, системную проверку Django, миграции без изменения рабочей базы, серверные и браузерные тесты. При ошибке команда возвращает ненулевой код. Архив исходников создаётся в dist/Mediary.zip. В него входят код, шаблоны, статические файлы, миграции, тесты, зависимости и документация. Для разработки также включены package-lock.json и pyproject.toml.
+
+## Первый запуск из архива
+
+Распаковать архив и открыть терминал в каталоге Mediary.
+
+```powershell
+python -m venv venv
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+.\venv\Scripts\python.exe manage.py migrate
+.\venv\Scripts\python.exe manage.py runserver
+```
+
+Открыть http://127.0.0.1:8000/, зарегистрироваться и войти. Миграции создают новую SQLite. Личный аккаунт, рабочая база, ключ сессий и виртуальное окружение пользователя в архив не входят. Новый локальный ключ автоматически создаётся при запуске.
+
+Для обновления существующей копии сохранить базу и локальный ключ, установить зависимости и выполнить migrate.
+
+## Конфигурация
+
+config/settings.py содержит TIME_ZONE, LANGUAGE_CODE, DATABASES и настройки сессии. Для постоянного ключа на другом окружении можно задать DJANGO_SECRET_KEY через переменную окружения. Локальная демонстрация использует DEBUG=True и адрес 127.0.0.1. Запуск runserver предназначен для учебной локальной демонстрации.
+
+Для тестов установить requirements-dev.txt и выполнить npm ci. Браузерный запуск с msedge использует установленный Microsoft Edge. Альтернативный Chromium устанавливается командой npx playwright install chromium.
+
+## Демонстрация
+
+Последовательность действий приведена в docs/demo.md. Проверка основных сценариев находится в diary/tests/test_user_scenarios.py. Карта всех заданий находится в docs/labs_01_15.md.
