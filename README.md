@@ -97,3 +97,9 @@ venv\Scripts\python.exe manage.py test diary
 Первое открытие сайта перенаправляет на /accounts/login/. Новый пользователь регистрируется через ссылку «Зарегистрироваться». Пароли проверяются средствами Django и сохраняются хешированными. В меню есть «Сменить пароль» и «Выйти».
 
 Для развёртывания новой копии выполнить migrate и зарегистрировать свой аккаунт; локальные пароли и ключи не включены в исходники. Обновление существующей базы описано в [docs/authentication.md](docs/authentication.md). Учебные задания оформлены отдельно: [регистрация и доступ](docs/authentication.md), [Session и Cookies](docs/session_cookies.md).
+
+## Завершение учебного проекта
+
+[Карта ЛЗ 1–15](docs/labs_01_15.md), [ветки и PR для ЛЗ 14](docs/git_workflow_lab14.md), [сборка и запуск ЛЗ 15](docs/final_build.md).
+
+Собрать архив исходников можно командой `venv\Scripts\python.exe scripts/build_release.py`.
